@@ -1,18 +1,47 @@
 # Azure Management SDK Samples for Azure Cosmos DB
 
-This repository containers samples of Azure Management SDK samples for Azure Cosmos DB resources.
+This repository contains of Azure Management SDK samples for Azure Cosmos DB to create and update Azure Cosmos DB resources through it's resource provider (control plane). Azure resource providers are used to provision and manage resources in Azure. 
 
-Samples are available in:
+The samples can be used to support users who are adopting Microsoft Entra Id and disabling key-based access to their data and want to manage their Cosmos resources using an SDK rather than use Bicep templates, PowerShell or Azure CLI.
+
+## Resource Operations
+
+These samples demonstrate create or update operations on the following Cosmos DB resources, including:
+
+- Accounts:
+    - Serverless, Vector search, IP firewall rules, and disabling local auth (key-based data plane access) to force Entra Id for Auth-N and role-based access control (RBAC) for Auth-Z
+- Databases
+- Containers:
+    - Hierarchical partition keys, custom index policies, unique keys, computed properties, conflict resolution policies, vector index policies, autoscale throughput
+- Throughput
+- RBAC definitions:
+    - Creating a built-in definition, creating a custom RBAC definition
+- RBAC assignments
+
+The samples also include some other handy conveniences for developers working with Cosmos resources including: 
+
+- Selecting your default Azure Subscription
+- Getting your IP address to add to a Firewall Rule
+- Getting your principal id for RBAC assignments 
+
+## Languages available 
+
+The samples are available in 5 languages including:
 
 - [C#](/Csharp/)
 - [Python](/Python/)
+- [Go](/Go/) Not yet available
 - [Java](/Java) Not yet available
 - [JavaScript](/JavaScript/) Not yet available
 
-For more information on the underlying Azure Management SDK's, visit their GitHub repositories with the source code and more samples.
+
+## Azure Management SDK source code repositories
+
+All Azure Management SDK's are open source. For more information and the source for the underlying Azure Management SDK's, visit their GitHub repositories.
 
 - [C#](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/cosmosdb/Azure.ResourceManager.CosmosDB)
 - [Python](https://github.com/Azure/azure-sdk-for-python/tree/main/sdk/cosmos/azure-mgmt-cosmosdb)
+- [Go](https://github.com/Azure/azure-sdk-for-go/tree/main/sdk/resourcemanager/cosmos/armcosmos)
 - [Java](https://github.com/Azure/azure-sdk-for-java/tree/main/sdk/resourcemanager/azure-resourcemanager-cosmos)
 - [JavaScript](https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/cosmosdb/arm-cosmosdb)
 
