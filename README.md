@@ -4,23 +4,26 @@ This repository containers samples of Azure Management SDK samples for Azure Cos
 
 Samples are available in:
 
-    - [C#](/Csharp/)
-    - [Python](/Python/)
-    - [Java](/Java) Not yet available
-    - [JavaScript](/JavaScript/) Not yet available
+- [C#](/Csharp/)
+- [Python](/Python/)
+- [Java](/Java) Not yet available
+- [JavaScript](/JavaScript/) Not yet available
 
 For more information on the underlying Azure Management SDK's, visit their GitHub repositories with the source code and more samples.
 
-    - [C#](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/cosmosdb/Azure.ResourceManager.CosmosDB)
-    - [Python](https://github.com/Azure/azure-sdk-for-python/tree/main/sdk/cosmos/azure-mgmt-cosmosdb)
-    - [Java](https://github.com/Azure/azure-sdk-for-java/tree/main/sdk/resourcemanager/azure-resourcemanager-cosmos)
-    - [JavaScript](https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/cosmosdb/arm-cosmosdb)
+- [C#](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/cosmosdb/Azure.ResourceManager.CosmosDB)
+- [Python](https://github.com/Azure/azure-sdk-for-python/tree/main/sdk/cosmos/azure-mgmt-cosmosdb)
+- [Java](https://github.com/Azure/azure-sdk-for-java/tree/main/sdk/resourcemanager/azure-resourcemanager-cosmos)
+- [JavaScript](https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/cosmosdb/arm-cosmosdb)
+
 
 ## How to file issues and get help  
 
-This project uses GitHub Issues to track bugs and feature requests. Please search the existing 
-issues before filing new issues to avoid duplicates.  For new issues, file your bug or 
-feature request as a new Issue.
+Azure Management SDKs are fully supported by Microsoft. For issues related to them please open a support ticket. The GitHub issues here is not the correct channel for these.
+
+For questions, feature requests or issues related to just the samples themselves, please use GitHub Issues. 
+Please search the existing issues before filing new ones to avoid duplicates.
+
 
 ## Contributing
 
