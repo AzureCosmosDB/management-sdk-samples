@@ -1,0 +1,5 @@
+# Python specific files
+*.env.local
+venv/
+__pycache__/
+*.pyc

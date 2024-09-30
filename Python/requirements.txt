@@ -1,0 +1,10 @@
+numpy
+python-dotenv
+azure-core
+azure-cosmos
+azure-mgmt-resource
+azure-mgmt-cosmosdb
+azure-identity
+azure-mgmt-authorization
+msgraph-core
+aiohttp

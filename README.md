@@ -1,14 +1,26 @@
-# Project
+# Azure Management SDK Samples for Azure Cosmos DB
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+This repository containers samples of Azure Management SDK samples for Azure Cosmos DB resources.
 
-As the maintainer of this project, please make a few updates:
+Samples are available in:
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+    - [C#](/Csharp/)
+    - [Python](/Python/)
+    - [Java](/Java) Not yet available
+    - [JavaScript](/JavaScript/) Not yet available
+
+For more information on the underlying Azure Management SDK's, visit their GitHub repositories with the source code and more samples.
+
+    - [C#](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/cosmosdb/Azure.ResourceManager.CosmosDB)
+    - [Python](https://github.com/Azure/azure-sdk-for-python/tree/main/sdk/cosmos/azure-mgmt-cosmosdb)
+    - [Java](https://github.com/Azure/azure-sdk-for-java/tree/main/sdk/resourcemanager/azure-resourcemanager-cosmos)
+    - [JavaScript](https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/cosmosdb/arm-cosmosdb)
+
+## How to file issues and get help  
+
+This project uses GitHub Issues to track bugs and feature requests. Please search the existing 
+issues before filing new issues to avoid duplicates.  For new issues, file your bug or 
+feature request as a new Issue.
 
 ## Contributing
 
