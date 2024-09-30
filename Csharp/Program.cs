@@ -73,20 +73,6 @@ public partial class Program
         //Console.WriteLine($"Subscription ID: {_subscriptionId}");
     }
 
-    private static async Task<string> GetLocalIpAddressAsync()
-    {
-
-        // Get the public IP address making outbound http requests
-        string publicIpAddress;
-        using (HttpClient httpClient = new())
-        {
-            publicIpAddress = await httpClient.GetStringAsync("https://api.ipify.org");
-            Console.WriteLine($"Public IP Address: {publicIpAddress}");
-        }
-
-        return publicIpAddress;
-    }
-
     public static async Task CreateOrUpdateCosmosDBAccount()
     {
         // Create a CosmosDB account
@@ -382,21 +368,6 @@ public partial class Program
 
     }
 
-    private static string GetAssignableScope(Scope scope)
-    {
-        // Switch statement to set the permission scope
-        string scopeString = scope switch
-        {
-            Scope.Subscription => $"/subscriptions/{_subscriptionId}",
-            Scope.ResourceGroup => $"/subscriptions/{_subscriptionId}/resourceGroups/{_resourceGroupName}",
-            Scope.Account => $"/subscriptions/{_subscriptionId}/resourceGroups/{_resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{_accountName}",
-            Scope.Database => $"/subscriptions/{_subscriptionId}/resourceGroups/{_resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{_accountName}/dbs/{_databaseName}",
-            Scope.Container => $"/subscriptions/{_subscriptionId}/resourceGroups/{_resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{_accountName}/dbs/{_databaseName}/colls/{_containerName}",
-            _ => $"/subscriptions/{_subscriptionId}/resourceGroups/{_resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{_accountName}",
-        };
-        return scopeString;
-    }
-
     private static async Task<Guid?> GetCurrentUserPrincipalIdAsync()
     {
         
@@ -413,6 +384,35 @@ public partial class Program
         return principalId;
 
     }
+
+private static async Task<string> GetLocalIpAddressAsync()
+    {
+
+        // Get the public IP address making outbound http requests
+        string publicIpAddress;
+        using (HttpClient httpClient = new())
+        {
+            publicIpAddress = await httpClient.GetStringAsync("https://api.ipify.org");
+            Console.WriteLine($"Public IP Address: {publicIpAddress}");
+        }
+
+        return publicIpAddress;
+    }
+
+private static string GetAssignableScope(Scope scope)
+{
+    // Switch statement to set the permission scope
+    string scopeString = scope switch
+    {
+        Scope.Subscription => $"/subscriptions/{_subscriptionId}",
+        Scope.ResourceGroup => $"/subscriptions/{_subscriptionId}/resourceGroups/{_resourceGroupName}",
+        Scope.Account => $"/subscriptions/{_subscriptionId}/resourceGroups/{_resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{_accountName}",
+        Scope.Database => $"/subscriptions/{_subscriptionId}/resourceGroups/{_resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{_accountName}/dbs/{_databaseName}",
+        Scope.Container => $"/subscriptions/{_subscriptionId}/resourceGroups/{_resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{_accountName}/dbs/{_databaseName}/colls/{_containerName}",
+        _ => $"/subscriptions/{_subscriptionId}/resourceGroups/{_resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{_accountName}",
+    };
+    return scopeString;
+}
 
     private enum Scope
     {
