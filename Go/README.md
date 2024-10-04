@@ -67,6 +67,8 @@ The go get command downloads the specified packages and adds them to your go.mod
 ### Configuration
 
 Update the `appsettings.json` in the project directory with the following content:
+
+```json
 {
   "SubscriptionId": "{SubscriptionId}",
   "ResourceGroupName": "{ResourceGroupName}",
@@ -76,6 +78,7 @@ Update the `appsettings.json` in the project directory with the following conten
   "ContainerName": "{ContainerName}",
   "MaxAutoScaleThroughput": 1000
 }
+```
 
 ### Running the Code
 
