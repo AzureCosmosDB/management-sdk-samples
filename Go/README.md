@@ -2,10 +2,10 @@
 
 Repository of Azure Management Go SDK samples for creating and updating Azure Cosmos DB resources.
 
-## Azure SDK for Python for Azure Cosmos DB
+## Azure Go SDK for Azure Cosmos DB
 
 You can find the source code and for this and other Azure SDKs at:
-[azure-mgmt-cosmosdb](https://github.com/Azure/azure-sdk-for-python/tree/main/sdk/cosmos/azure-mgmt-cosmosdb)
+[management-sdk-samples](https://github.com/AzureCosmosDB/management-sdk-samples)
 
 
 ## Prerequisites
@@ -15,7 +15,7 @@ You can find the source code and for this and other Azure SDKs at:
 
 ### Windows
 
-1. Download the Go installer from the official website.
+1. Download the Go installer from the [official website](https://go.dev/doc/install).
 2. Run the installer and follow the instructions.
 3. Verify the installation by opening Command Prompt and running:
 

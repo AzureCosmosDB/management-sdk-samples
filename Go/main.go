@@ -127,7 +127,7 @@ func createOrUpdateCosmosDBAccount(ctx context.Context) {
 				},
 			},
 			DatabaseAccountOfferType: to.StringPtr("Standard"),
-			DisableLocalAuth:         to.BoolPtr(false),
+			DisableLocalAuth:         to.BoolPtr(true),
 			PublicNetworkAccess:      to.PublicNetworkAccessPtr(armcosmos.PublicNetworkAccessEnabled),
 		},
 	}
