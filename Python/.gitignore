@@ -1,5 +1,9 @@
 # Python specific files
-*.env.local
+*.env
 venv/
 __pycache__/
 *.pyc
+
+# VS Code specific files
+.vscode/
+launch.json
