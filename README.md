@@ -9,19 +9,19 @@ The samples can be used to support users who are adopting Microsoft Entra Id and
 These samples demonstrate create or update operations on the following Cosmos DB resources, including:
 
 - Accounts:
-    - Serverless, Vector search, IP firewall rules, and disabling local auth (key-based data plane access) to force Entra Id for Auth-N and role-based access control (RBAC) for Auth-Z
+    - Serverless, IP firewall rules, and disabling local auth (key-based data plane access) to force Entra Id for Auth-N and role-based access control (RBAC) for Auth-Z
 - Databases
 - Containers:
-    - Hierarchical partition keys, custom index policies, unique keys, computed properties, conflict resolution policies, vector index policies, autoscale throughput
+    - Hierarchical partition keys, index policies, unique keys, ttl, conflict resolution policies, autoscale throughput
 - Throughput
+    - Update autoscale throughput
 - RBAC definitions:
     - Creating a built-in definition, creating a custom RBAC definition
 - RBAC assignments
 
 The samples also include some other handy conveniences for developers working with Cosmos resources including: 
 
-- Selecting your default Azure Subscription
-- Getting your IP address to add to a Firewall Rule
+- Getting your IP address to add to a Firewall Rule, add Portal Access and Azure data center access
 - Getting your principal id for RBAC assignments 
 
 ## Languages available 
@@ -30,7 +30,7 @@ The samples are available in 5 languages including:
 
 - [C#](/Csharp/)
 - [Python](/Python/)
-- [Go](/Go/) Not yet available
+- [Go](/Go/)
 - [Java](/Java) Not yet available
 - [JavaScript](/JavaScript/) Not yet available
 
