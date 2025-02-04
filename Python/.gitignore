@@ -7,3 +7,4 @@ __pycache__/
 # VS Code specific files
 .vscode/
 launch.json
+.vs
