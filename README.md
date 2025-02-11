@@ -31,7 +31,7 @@ The samples are available in 5 languages including:
 - [C#](/Csharp/)
 - [Python](/Python/)
 - [Go](/Go/)
-- [Java](/Java) Not yet available
+- [Java](/Java)
 - [JavaScript](/JavaScript/) Not yet available
 
 
