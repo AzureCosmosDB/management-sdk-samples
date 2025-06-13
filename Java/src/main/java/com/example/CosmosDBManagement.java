@@ -13,11 +13,13 @@ import com.azure.resourcemanager.cosmos.models.ComputedProperty;
 import com.azure.resourcemanager.cosmos.models.ConflictResolutionMode;
 import com.azure.resourcemanager.cosmos.models.ConflictResolutionPolicy;
 import com.azure.resourcemanager.cosmos.models.ContainerPartitionKey;
+import com.azure.resourcemanager.cosmos.models.CosmosDBAccount;
 import com.azure.resourcemanager.cosmos.models.CreateUpdateOptions;
 import com.azure.resourcemanager.cosmos.models.ExcludedPath;
 import com.azure.resourcemanager.cosmos.models.IncludedPath;
 import com.azure.resourcemanager.cosmos.models.IndexingMode;
 import com.azure.resourcemanager.cosmos.models.IndexingPolicy;
+import com.azure.resourcemanager.cosmos.models.Location;
 import com.azure.resourcemanager.cosmos.models.SqlContainerCreateUpdateParameters;
 import com.azure.resourcemanager.cosmos.models.SqlDatabaseCreateUpdateParameters;
 import com.azure.resourcemanager.cosmos.models.SqlDatabaseResource;
@@ -34,6 +36,7 @@ import com.microsoft.graph.requests.GraphServiceClient;
 import okhttp3.Request;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class CosmosDBManagement {
     private static String resourceGroupName = System.getenv("AZURE_RESOURCE_GROUP");
@@ -60,7 +63,8 @@ public class CosmosDBManagement {
             createContainer(cosmosManager);
             updateThroughput(cosmosManager, 4000);
             createOrUpdateRoleAssignment(getBuiltInDataContributorRoleDefinition());
-            
+            getCosmosDbAccount(cosmosManager);
+
             System.out.println("Cosmos DB resources created successfully.");
         } catch (Exception e) {
             System.err.println("An error occurred: " + e.getMessage());
@@ -299,5 +303,18 @@ public class CosmosDBManagement {
             System.err.println("An error occurred while fetching the principal ID: " + e.getMessage());
             return null;
         }
+    }
+
+    private static void getCosmosDbAccount(CosmosManager cosmosManager) {
+        CosmosDBAccount account = cosmosManager.databaseAccounts()
+                .getByResourceGroup(resourceGroupName, accountName);
+
+        System.out.println("Cosmos DB Account Details:");
+        System.out.println("Account Name: " + account.name());
+        System.out.println("Region: " + account.regionName());
+        System.out.println("Kind: " + account.kind());
+        System.out.println("Consistency Policy: " + account.consistencyPolicy().defaultConsistencyLevel());
+        System.out.println("Readable locations: " + account.readableReplications().stream().map(Location::locationName).collect(Collectors.joining(",")));
+        System.out.println("Writable locations: " + account.writableReplications().stream().map(Location::locationName).collect(Collectors.joining(",")));
     }
 }
