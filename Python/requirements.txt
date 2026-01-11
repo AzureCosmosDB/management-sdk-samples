@@ -2,7 +2,6 @@ python-dotenv
 azure-identity
 azure-mgmt-resource
 azure-mgmt-cosmosdb
-msgraph-sdk
 aiohttp
 
 #azure-core
@@ -10,4 +9,5 @@ aiohttp
 #azure-mgmt-authorization
 #azure-mgmt-subscription
 #msgraph-core
+#msgraph-sdk
 #msgraph-sdk
