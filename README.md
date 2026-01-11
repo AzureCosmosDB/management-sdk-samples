@@ -1,6 +1,6 @@
 # Azure Management SDK Samples for Azure Cosmos DB
 
-This repository contains of Azure Management SDK samples for Azure Cosmos DB to create and update Azure Cosmos DB resources through it's resource provider (control plane). Azure resource providers are used to provision and manage resources in Azure. 
+This repository contains of Azure Management SDK samples for Azure Cosmos DB to create and update Azure Cosmos DB resources through it's resource provider (control plane). Azure resource providers are used to provision and manage resources in Azure.
 
 The samples can be used to support users who are adopting Microsoft Entra Id and disabling key-based access to their data and want to manage their Cosmos resources using an SDK rather than use Bicep templates, PowerShell or Azure CLI.
 
@@ -14,26 +14,25 @@ These samples demonstrate create or update operations on the following Cosmos DB
 - Containers:
     - Hierarchical partition keys, index policies, unique keys, ttl, conflict resolution policies, autoscale throughput
 - Throughput
-    - Update autoscale throughput
+    - Update autoscale or manual throughput
 - RBAC definitions:
     - Creating a built-in definition, creating a custom RBAC definition
 - RBAC assignments
 
-The samples also include some other handy conveniences for developers working with Cosmos resources including: 
+The samples also include some other handy conveniences for developers working with Cosmos resources including:
 
 - Getting your IP address to add to a Firewall Rule, add Portal Access and Azure data center access
-- Getting your principal id for RBAC assignments 
+- Getting your principal id for RBAC assignments
 
-## Languages available 
+## Languages available
 
 The samples are available in 5 languages including:
 
-- [C#](/Csharp/)
-- [Python](/Python/)
-- [Go](/Go/)
-- [Java](/Java) Not yet available
-- [JavaScript](/JavaScript/) Not yet available
-
+- [C#](/Csharp/README.md)
+- [Python](/Python/README.md)
+- [Go](/Go/README.md)
+- [Java](/Java/readme.md)
+- [JavaScript](/JavaScript/README.md) (placeholder)
 
 ## Azure Management SDK source code repositories
 
@@ -45,14 +44,12 @@ All Azure Management SDK's are open source. For more information and the source 
 - [Java](https://github.com/Azure/azure-sdk-for-java/tree/main/sdk/resourcemanager/azure-resourcemanager-cosmos)
 - [JavaScript](https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/cosmosdb/arm-cosmosdb)
 
-
 ## How to file issues and get help  
 
-Azure Management SDKs are fully supported by Microsoft. For issues related to them please open a support ticket. The GitHub issues here is not the correct channel for these.
+Azure Management SDKs are fully supported by Microsoft. For issues related to them please open a support ticket. The GitHub issues for this repository is not the correct channel for support.
 
-For questions, feature requests or issues related to just the samples themselves, please use GitHub Issues. 
+For questions, feature requests or issues related to just the samples themselves, please use GitHub Issues.
 Please search the existing issues before filing new ones to avoid duplicates.
-
 
 ## Contributing
 
@@ -70,8 +67,7 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
-[Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
+
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.

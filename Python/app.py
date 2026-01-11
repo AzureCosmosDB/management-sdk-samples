@@ -24,6 +24,7 @@ from azure.mgmt.cosmosdb.models import (
     IncludedPath,
     ExcludedPath,
     UniqueKey,
+    UniqueKeyPolicy,
     ConflictResolutionPolicy,
     ConflictResolutionMode,
     ThroughputSettingsResource,
@@ -234,27 +235,20 @@ async def create_or_update_cosmos_db_container():
                     )
                 ]
             ),
-            unique_key_policy= [ 
-                UniqueKey( 
-                    paths = [ 
-                        "/userId" 
-                    ] 
-                ) 
-            ],
             # Only needed for multi-region write accounts
             conflict_resolution_policy = ConflictResolutionPolicy(
                 mode = ConflictResolutionMode.LAST_WRITER_WINS,
                 conflict_resolution_path = "/_ts"
             ),
+            vector_embedding_policy = [
+                VectorEmbedding(
+                    path = "/embedding",
+                    dimensions = 1536,
+                    data_type = VectorDataType.FLOAT32,
+                    distance_function = DistanceFunction.COSINE
+                )
+            ]
         ),
-        vector_embedding_policy = [
-            VectorEmbedding(
-                path = "/embedding",
-                dimensions = 1536,
-                data_type = VectorDataType.FLOAT32,
-                distance_function = DistanceFunction.COSINE
-            )
-        ],
         # When using serverless, omit throughput,  options={}
         options={ 
             "autoscaleSettings": { 
@@ -403,15 +397,40 @@ async def get_built_in_account_contributor_role_definition():
     
     # Built-in roles are predefined roles that are available in Azure
     print ("Getting Built-in DocumentDB Account Contributor Definition...")
+    # This role provides full access to the DocumentDB account, including keys (which should not be necessary)
+    # This role is not recommended for production use, as it provides more access than necessary, use Cosmos DB Operator instead
     
     # Azure Built-in DocumentDB Account Contributor role definition ID
-    role_definition_id = "b24988ac-6180-42a0-ab88-20f7382dd24c"
+    #role_definition_id = "5bd9cd88-fe45-4216-938b-f97437e15450"
     role_definition_name = "DocumentDB Account Contributor"
     
-    role_definition = await RESOURCE_CLIENT.role_definitions.get_by_id(
-        role_definition_id = role_definition_id,
+    #role_definition = await RESOURCE_CLIENT.role_definitions.get_by_id(
+    #    role_definition_id = role_definition_id,
+    #    scope = f"/subscriptions/{SUBSCRIPTION_ID}"
+    #)
+    
+    role_definition = await RESOURCE_CLIENT.role_definitions.get_by_name(
+        role_name = role_definition_name,
         scope = f"/subscriptions/{SUBSCRIPTION_ID}"
     )
+    
+    return role_definition.id
+
+async def get_built_in_account_operator_role_definition():
+    
+    # Built-in roles are predefined roles that are available in Azure
+    print ("Getting Built-in Cosmos DB Account Operator Definition...")
+    # This role does evertything Account Contributor does, but doesn't allow access to keys
+    # This role is recommended for production use
+    
+    # Azure Built-in Cosmos DB Operator role definition ID
+    #role_definition_id = "230815da-be43-4aae-9cb4-875f7bd000aa"
+    role_definition_name = "Cosmos DB Operator"
+    
+    #role_definition = await RESOURCE_CLIENT.role_definitions.get_by_id(
+    #    role_definition_id = role_definition_id,
+    #    scope = f"/subscriptions/{SUBSCRIPTION_ID}"
+    #)
     
     role_definition = await RESOURCE_CLIENT.role_definitions.get_by_name(
         role_name = role_definition_name,
