@@ -9,6 +9,13 @@ public static class Program
     // Generic Host for configuration, DI, and graceful shutdown.
     public static async Task Main(string[] args)
     {
+        // Default to Development for this sample unless the user explicitly overrides it.
+        // This ensures appsettings.development.json is picked up without requiring extra setup.
+        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")))
+        {
+            Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", Environments.Development);
+        }
+
         using IHost host = Host.CreateDefaultBuilder(args)
             .ConfigureServices((context, services) =>
             {

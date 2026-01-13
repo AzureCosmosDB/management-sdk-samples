@@ -1,0 +1,24 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Java: Debug sample",
+        "type": "java",
+        "request": "launch",
+        "mainClass": "com.example.CosmosDBManagement",
+        "cwd": "${workspaceFolder}/Java"
+      }
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "vscjava.vscode-java-pack"
+    ]
+  }
+}
