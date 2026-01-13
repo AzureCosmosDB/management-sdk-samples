@@ -8,9 +8,20 @@
 
 To run this application, ensure you have the following installed:
 
-- **Java Development Kit (JDK)**: Version 8 or higher.
+- **Java Development Kit (JDK)**: Version 21 (LTS).
 - **Maven**: For managing dependencies.
 - **Azure Account**: You need an Azure subscription. If you don’t have one, you can [create a free account](https://azure.com/free).
+
+### VS Code setup (recommended)
+
+If you want to run/debug this sample from VS Code:
+
+1. Install the Java extension pack: `vscjava.vscode-java-pack`
+2. Ensure VS Code is using a JDK 21 runtime:
+    - Command Palette → **Java: Configure Java Runtime** → set a **JavaSE-21** runtime as default, OR
+    - Set `JAVA_HOME` to a JDK 21 path and restart VS Code.
+
+If Maven fails with `invalid target release: 21`, it usually means Maven is running under an older Java (for example Java 8). Make sure `JAVA_HOME` points to JDK 21 and that your terminal/VS Code session was restarted after setting it.
 
 ## Dependencies
 
@@ -21,17 +32,17 @@ The project uses Azure SDK libraries, which can be included in your Maven `pom.x
     <dependency>
         <groupId>com.azure.resourcemanager</groupId>
         <artifactId>azure-resourcemanager-resources</artifactId>
-        <version>2.41.0</version> <!-- Check for the latest version -->
+        <version>2.51.0</version>
     </dependency>
     <dependency>
         <groupId>com.azure.resourcemanager</groupId>
         <artifactId>azure-resourcemanager-cosmos</artifactId>
-        <version>2.41.0</version>
+        <version>2.51.0</version>
     </dependency>
     <dependency>
         <groupId>com.azure</groupId>
         <artifactId>azure-identity</artifactId>
-        <version>1.12.2</version>
+        <version>1.15.2</version>
     </dependency>
     <dependency>
         <groupId>org.slf4j</groupId>
@@ -65,6 +76,10 @@ The project uses Azure SDK libraries, which can be included in your Maven `pom.x
    ```bash
    mvn exec:java -Dexec.mainClass="com.example.CosmosDBManagement"
    ```
+
+### Debug in VS Code
+
+- Open [Java.code-workspace](../Java.code-workspace) and use **Run and Debug** → **Java: Debug sample**.
 
 ## Functionality
 

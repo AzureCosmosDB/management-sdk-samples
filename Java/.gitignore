@@ -54,4 +54,7 @@ hs_err_pid*
 /*.vscode/
 /target/
 
+# Java upgrade tool artifacts (generated locally)
+/.github/java-upgrade/
+
 *.iml
