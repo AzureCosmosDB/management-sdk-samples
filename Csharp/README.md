@@ -72,7 +72,8 @@ Keys:
 
 Notes:
 - `Host.CreateDefaultBuilder()` loads `appsettings.json` and `appsettings.{Environment}.json`.
-- Set `DOTNET_ENVIRONMENT=Development` to use `appsettings.development.json`.
+- This sample defaults `DOTNET_ENVIRONMENT` to `Development` if it isn't already set (so `appsettings.development.json` is used automatically).
+- Set `DOTNET_ENVIRONMENT` explicitly if you want to override (for example, `Production`).
 
 ## Setup
 
@@ -116,8 +117,7 @@ dotnet run
 
 ## Debugging in VS Code
 
-This repo includes a VS Code launch configuration named **“C#: Debug sample”** that:
-- Builds the C# project first
+To debug without requiring all language extensions in this multi-language repo, open the workspace file [Csharp.code-workspace](../Csharp.code-workspace) and use the launch configuration **“C#: Debug sample”**.
 - Sets `DOTNET_ENVIRONMENT=Development`
 - Launches `Csharp/bin/Debug/net9.0/Csharp.dll`
 

@@ -1,0 +1,25 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Go: Debug sample",
+        "type": "go",
+        "request": "launch",
+        "mode": "auto",
+        "program": "${workspaceFolder}/Go",
+        "cwd": "${workspaceFolder}/Go"
+      }
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "golang.go"
+    ]
+  }
+}

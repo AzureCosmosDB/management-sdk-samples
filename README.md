@@ -34,6 +34,31 @@ The samples are available in 5 languages including:
 - [Java](/Java/readme.md)
 - [JavaScript](/JavaScript/README.md) (placeholder)
 
+## VS Code debugging (recommended)
+
+This repo contains samples in multiple languages/frameworks. Use the `*.code-workspace` files at the repo root so you can keep all projects visible side-by-side (the workspace opens the repo root), while only enabling the debug/settings for the language you're working on.
+
+To avoid VS Code debug adapter errors when you don't have every language extension installed, open the workspace file for the language you're working on:
+
+- [Python.code-workspace](Python.code-workspace)
+- [Csharp.code-workspace](Csharp.code-workspace)
+- [Go.code-workspace](Go.code-workspace)
+- [Java.code-workspace](Java.code-workspace)
+
+### How to open a workspace file
+
+In VS Code:
+
+1. Use **File → Open Workspace from File…**
+2. Pick the `*.code-workspace` file you want (for example, `Python.code-workspace`).
+
+Then use **Run and Debug** (or press **F5**) to start that sample.
+
+Notes:
+
+- Opening the repo as a normal folder is not recommended (by design), because interpreter/debug settings are isolated per language workspace.
+- If you switch between languages, just open the other workspace file.
+
 ## Azure Management SDK source code repositories
 
 All Azure Management SDK's are open source. For more information and the source for the underlying Azure Management SDK's, visit their GitHub repositories.
