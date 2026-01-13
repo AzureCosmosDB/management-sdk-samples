@@ -4,6 +4,12 @@
       "path": "."
     }
   ],
+  "settings": {
+    // This sample targets Java 21 (LTS). Configure a JDK 21 in VS Code (Java: Configure Java Runtime)
+    // or set JAVA_HOME to a JDK 21 path and restart VS Code.
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.debug.settings.forceBuildBeforeLaunch": true
+  },
   "launch": {
     "version": "0.2.0",
     "configurations": [

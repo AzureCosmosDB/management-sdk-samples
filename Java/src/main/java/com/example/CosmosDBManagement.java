@@ -200,26 +200,26 @@ public class CosmosDBManagement {
         String scopeString;
         switch (scope) {
             case Subscription:
-                scopeString = String.format("/subscriptions/%s", subscriptionId);
+                scopeString = "/subscriptions/%s".formatted(subscriptionId);
                 break;
             case ResourceGroup:
-                scopeString = String.format("/subscriptions/%s/resourceGroups/%s", subscriptionId, resourceGroupName);
+                scopeString = "/subscriptions/%s/resourceGroups/%s".formatted(subscriptionId, resourceGroupName);
                 break;
             case Account:
-                scopeString = String.format("/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DocumentDB/databaseAccounts/%s",
-                        subscriptionId, resourceGroupName, accountName);
+                scopeString = "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DocumentDB/databaseAccounts/%s".formatted(
+                    subscriptionId, resourceGroupName, accountName);
                 break;
             case Database:
-                scopeString = String.format("/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DocumentDB/databaseAccounts/%s/dbs/%s",
-                        subscriptionId, resourceGroupName, accountName, databaseName);
+                scopeString = "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DocumentDB/databaseAccounts/%s/dbs/%s".formatted(
+                    subscriptionId, resourceGroupName, accountName, databaseName);
                 break;
             case Container:
-                scopeString = String.format("/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DocumentDB/databaseAccounts/%s/dbs/%s/colls/%s",
-                        subscriptionId, resourceGroupName, accountName, databaseName, containerName);
+                scopeString = "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DocumentDB/databaseAccounts/%s/dbs/%s/colls/%s".formatted(
+                    subscriptionId, resourceGroupName, accountName, databaseName, containerName);
                 break;
             default:
-                scopeString = String.format("/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DocumentDB/databaseAccounts/%s",
-                        subscriptionId, resourceGroupName, accountName);
+                scopeString = "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DocumentDB/databaseAccounts/%s".formatted(
+                    subscriptionId, resourceGroupName, accountName);
                 break;
         }
         return scopeString;
