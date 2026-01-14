@@ -1,320 +1,242 @@
 package com.example;
 
-import com.azure.core.credential.TokenCredential;
-import com.azure.core.management.AzureEnvironment;
-import com.azure.core.management.Region;
-import com.azure.core.management.profile.AzureProfile;
-import com.azure.identity.DefaultAzureCredentialBuilder;
-import com.azure.resourcemanager.cosmos.CosmosManager;
-import com.azure.resourcemanager.cosmos.fluent.models.SqlRoleDefinitionGetResultsInner;
-import com.azure.resourcemanager.cosmos.models.AutoscaleSettings;
-import com.azure.resourcemanager.cosmos.models.AutoscaleSettingsResource;
-import com.azure.resourcemanager.cosmos.models.ComputedProperty;
-import com.azure.resourcemanager.cosmos.models.ConflictResolutionMode;
-import com.azure.resourcemanager.cosmos.models.ConflictResolutionPolicy;
-import com.azure.resourcemanager.cosmos.models.ContainerPartitionKey;
-import com.azure.resourcemanager.cosmos.models.CosmosDBAccount;
-import com.azure.resourcemanager.cosmos.models.CreateUpdateOptions;
-import com.azure.resourcemanager.cosmos.models.ExcludedPath;
-import com.azure.resourcemanager.cosmos.models.IncludedPath;
-import com.azure.resourcemanager.cosmos.models.IndexingMode;
-import com.azure.resourcemanager.cosmos.models.IndexingPolicy;
-import com.azure.resourcemanager.cosmos.models.Location;
-import com.azure.resourcemanager.cosmos.models.SqlContainerCreateUpdateParameters;
-import com.azure.resourcemanager.cosmos.models.SqlDatabaseCreateUpdateParameters;
-import com.azure.resourcemanager.cosmos.models.SqlDatabaseResource;
-import com.azure.resourcemanager.cosmos.models.SqlContainerResource;
-import com.azure.resourcemanager.cosmos.models.SqlRoleDefinitionCreateUpdateParameters;
-import com.azure.resourcemanager.cosmos.models.ThroughputSettingsResource;
-import com.azure.resourcemanager.cosmos.models.ThroughputSettingsUpdateParameters;
-import com.azure.resourcemanager.cosmos.models.UniqueKey;
-import com.azure.resourcemanager.cosmos.models.UniqueKeyPolicy;
-import com.azure.resourcemanager.cosmos.models.SqlRoleAssignmentCreateUpdateParameters;
-import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
-import com.microsoft.graph.models.User;
-import com.microsoft.graph.requests.GraphServiceClient;
-import okhttp3.Request;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.nio.file.Path;
+import java.util.Locale;
+import java.util.Scanner;
 
+/**
+ * Entry point for the Cosmos DB management-plane Java sample.
+ *
+ * <p>By default, runs an interactive menu (similar to the C# sample). When stdin is redirected
+ * (for example, CI), it runs the full sample once.
+ */
 public class CosmosDBManagement {
-    private static String resourceGroupName = System.getenv("AZURE_RESOURCE_GROUP");
-    private static String tenantId = System.getenv("AZURE_TENANT_ID");
-    private static String subscriptionId = System.getenv("AZURE_SUBSCRIPTION_ID");
-    private static String accountName = "<your account name>";
-    private static String databaseName = "database";
-    private static String containerName = "container";
-    private static int maxAutoScaleThroughput = 1000;
-    private static int maxAutoScaleThroughputUpdate = 4000;
-    private static Region region = Region.US_EAST;
-    private static Region writeRegion = Region.US_WEST;
-    private static Region readRegion = Region.US_CENTRAL;
 
-    public static CosmosManager cosmosManager;
-    
     public static void main(String[] args) {
+        CosmosConfig settings;
         try {
-            TokenCredential credential = authenticate();
-            cosmosManager = CosmosManager.authenticate(credential, createAzureProfile());
-            
-            createCosmosDBAccount(cosmosManager);
-            createDatabase(cosmosManager);
-            createContainer(cosmosManager);
-            updateThroughput(cosmosManager, 4000);
-            createOrUpdateRoleAssignment(getBuiltInDataContributorRoleDefinition());
-            getCosmosDbAccount(cosmosManager);
-
-            System.out.println("Cosmos DB resources created successfully.");
-        } catch (Exception e) {
-            System.err.println("An error occurred: " + e.getMessage());
+            settings = ConfigLoader.load(Path.of("."));
+        } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
+            ConfigLoader.printConfigurationHelp();
+            System.exit(2);
+            return;
         }
-    }
 
-    private static TokenCredential authenticate() {
-        AzureProfile profile = createAzureProfile();
-        return new DefaultAzureCredentialBuilder()
-                .authorityHost(profile.getEnvironment().getActiveDirectoryEndpoint())
-                .build();
-    }
+        CosmosManagement sample = CosmosManagement.create(settings);
 
-    private static AzureProfile createAzureProfile() {
-        return new AzureProfile(tenantId, subscriptionId, AzureEnvironment.AZURE);
-    }
-
-    private static void createCosmosDBAccount(CosmosManager cosmosManager) {
-        cosmosManager
-            .databaseAccounts()
-            .define(accountName)
-            .withRegion(region)
-            .withNewResourceGroup(resourceGroupName)
-            .withDataModelSql()
-            .withEventualConsistency()
-            .withWriteReplication(writeRegion)
-            .withReadReplication(readRegion)
-            .withMultipleWriteLocationsEnabled(true)
-            .createAsync().block();
-        System.out.println("Cosmos DB account created: " + accountName);
-    }
-
-    private static void createDatabase(CosmosManager cosmosManager) {
-        SqlDatabaseResource sqlDatabaseResource = new SqlDatabaseResource();
-        sqlDatabaseResource.withId(databaseName);
-        SqlDatabaseCreateUpdateParameters sqlDatabaseCreateUpdateParameters = new SqlDatabaseCreateUpdateParameters();
-        sqlDatabaseCreateUpdateParameters.withResource(sqlDatabaseResource);
-        cosmosManager.serviceClient().getSqlResources().createUpdateSqlDatabase(resourceGroupName, accountName, databaseName, sqlDatabaseCreateUpdateParameters);
-        System.out.println("SQL Database created: " + databaseName);
-    }
-
-    private static void createContainer(CosmosManager cosmosManager) {
-
-        // set up update options
-        SqlContainerCreateUpdateParameters sqlContainerCreateUpdateParameters = new SqlContainerCreateUpdateParameters();
-        SqlContainerResource sqlContainerResource = new SqlContainerResource();
-        sqlContainerResource.withId(containerName);
-
-        // Partition key
-        sqlContainerResource.withPartitionKey(new ContainerPartitionKey().withPaths(List.of("/id")));
-
-        // Indexing policy
-        IndexingPolicy indexingPolicy = new IndexingPolicy();
-        indexingPolicy.withAutomatic(true);
-        indexingPolicy.withIndexingMode(IndexingMode.CONSISTENT);
-        indexingPolicy.withIncludedPaths(List.of(new IncludedPath().withPath("/*")));
-        indexingPolicy.withExcludedPaths(List.of(new ExcludedPath().withPath("/\"_etag\"/?")));
-        sqlContainerResource.withIndexingPolicy(indexingPolicy);
-
-        // Unique key policy
-        UniqueKey uniqueKey = new UniqueKey().withPaths(List.of("/userName"));
-        UniqueKeyPolicy uniqueKeyPolicy = new UniqueKeyPolicy().withUniqueKeys(List.of(uniqueKey));
-        sqlContainerResource.withUniqueKeyPolicy(uniqueKeyPolicy);
-
-        // Computed property
-        ComputedProperty computedProperty = new ComputedProperty().withName("myComputedProperty").withName("cp_lowerName").withQuery("SELECT VALUE LOWER(c.userName) FROM c");
-        sqlContainerResource.withComputedProperties(List.of(computedProperty));
-
-        // Conflict resolution policy
-        ConflictResolutionPolicy conflictResolutionPolicy = new ConflictResolutionPolicy().withMode(ConflictResolutionMode.LAST_WRITER_WINS).withConflictResolutionPath("/_ts");
-        sqlContainerResource.withConflictResolutionPolicy(conflictResolutionPolicy);
-
-        // apply policies to the container
-        sqlContainerCreateUpdateParameters.withResource(sqlContainerResource);
-
-        // Add autoscale settings
-        CreateUpdateOptions options = new CreateUpdateOptions();
-        options.withAutoscaleSettings(new AutoscaleSettings().withMaxThroughput(maxAutoScaleThroughput));
-        sqlContainerCreateUpdateParameters.withOptions(options);
-
-        // Create the container
-        cosmosManager.serviceClient().getSqlResources().createUpdateSqlContainer(resourceGroupName, accountName, databaseName, containerName, sqlContainerCreateUpdateParameters);
-        System.out.println("SQL Container created: " + containerName);
-    }
-
-    private static void updateThroughput(CosmosManager cosmosManager, int maxAutoScaleThroughput) {
-        ThroughputSettingsUpdateParameters throughputSettingsUpdateParameters = new ThroughputSettingsUpdateParameters();
-        ThroughputSettingsResource throughputSettingsResource = new ThroughputSettingsResource();
-        AutoscaleSettingsResource autoscaleSettings = new AutoscaleSettingsResource();
-        autoscaleSettings.withMaxThroughput(maxAutoScaleThroughputUpdate);
-        throughputSettingsResource.withAutoscaleSettings(autoscaleSettings);
-        throughputSettingsUpdateParameters.withResource(throughputSettingsResource);
-        cosmosManager.serviceClient().getSqlResources().updateSqlContainerThroughput(resourceGroupName, accountName, databaseName, containerName, throughputSettingsUpdateParameters);
-        System.out.println("SQL Container throughput updated to: " + maxAutoScaleThroughputUpdate);
-    }
-
-    private static void createOrUpdateRoleAssignment(String roleDefinitionId) {
-        try {
-
-            var credential = new DefaultAzureCredentialBuilder().build();
-            // Get the principal ID of the current logged-in user
-            String principalId = String.valueOf(getCurrentUserPrincipalIdAsync(credential));
-
-
-            // Select the scope of the role permissions
-            String assignableScope = getAssignableScope(Scope.Account);
-
-            // Role assignment properties
-            SqlRoleAssignmentCreateUpdateParameters properties = new SqlRoleAssignmentCreateUpdateParameters()
-                    .withRoleDefinitionId(roleDefinitionId)
-                    .withScope(assignableScope)
-                    .withPrincipalId(principalId);
-
-            // Generate a unique role assignment ID
-            String roleAssignmentId = UUID.randomUUID().toString();
-
-            System.out.println("Role Assignment ID: " + roleAssignmentId);
-
-            // Create or update the role assignment
-            cosmosManager.serviceClient().getSqlResources().createUpdateSqlRoleAssignment(roleAssignmentId,resourceGroupName, accountName, properties);
-
-            // Get the new update role assignment ID
-            roleAssignmentId = cosmosManager.serviceClient().getSqlResources().getSqlRoleAssignment(roleAssignmentId,resourceGroupName, accountName).id();
-
-            // Print the created role assignment ID
-            System.out.println("Created new Role Assignment: " + roleAssignmentId);
-        } catch (Exception e) {
-            System.err.println("An error occurred while creating/updating the role assignment: " + e.getMessage());
+        String selection = parseSelection(args);
+        if (selection != null) {
+            runOne(sample, selection, parseDelta(args), parseConfirmDelete(args));
+            return;
         }
-    }
 
-    private static String getAssignableScope(Scope scope) {
-        String scopeString;
-        switch (scope) {
-            case Subscription:
-                scopeString = "/subscriptions/%s".formatted(subscriptionId);
-                break;
-            case ResourceGroup:
-                scopeString = "/subscriptions/%s/resourceGroups/%s".formatted(subscriptionId, resourceGroupName);
-                break;
-            case Account:
-                scopeString = "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DocumentDB/databaseAccounts/%s".formatted(
-                    subscriptionId, resourceGroupName, accountName);
-                break;
-            case Database:
-                scopeString = "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DocumentDB/databaseAccounts/%s/dbs/%s".formatted(
-                    subscriptionId, resourceGroupName, accountName, databaseName);
-                break;
-            case Container:
-                scopeString = "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DocumentDB/databaseAccounts/%s/dbs/%s/colls/%s".formatted(
-                    subscriptionId, resourceGroupName, accountName, databaseName, containerName);
-                break;
-            default:
-                scopeString = "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DocumentDB/databaseAccounts/%s".formatted(
-                    subscriptionId, resourceGroupName, accountName);
-                break;
+        if (isNonInteractiveEnvironment()) {
+            sample.run();
+            return;
         }
-        return scopeString;
+
+        runInteractive(sample);
     }
 
-    private enum Scope {
-        Subscription,
-        ResourceGroup,
-        Account,
-        Database,
-        Container
+    private static boolean isNonInteractiveEnvironment() {
+        if (System.in == null) {
+            return true;
+        }
+
+        String nonInteractive = System.getenv("COSMOS_SAMPLE_NON_INTERACTIVE");
+        if (nonInteractive != null && nonInteractive.equalsIgnoreCase("true")) {
+            return true;
+        }
+
+        // Common CI indicator.
+        String ci = System.getenv("CI");
+        return ci != null && !ci.isBlank();
     }
 
-    private static String getAssignableScope() {
-        return "/subscriptions/" + subscriptionId + "/resourceGroups/" + resourceGroupName + "/providers/Microsoft.DocumentDB/databaseAccounts/" + accountName;
-    }
+    private static void runInteractive(CosmosManagement sample) {
+        try (Scanner scanner = new Scanner(System.in)) {
+            while (true) {
+                System.out.println();
+                System.out.println("Cosmos management sample - choose an action:");
+                System.out.println("  1) Run full sample");
+                System.out.println("  2) Create/update Cosmos DB account");
+                System.out.println("  3) Create Azure RBAC assignment (Cosmos DB Operator)");
+                System.out.println("  4) Create/update NoSQL database");
+                System.out.println("  5) Create/update NoSQL container");
+                System.out.println("  6) Update container throughput (+delta)");
+                System.out.println("  7) Create Cosmos NoSQL RBAC assignment (Built-in Data Contributor)");
+                System.out.println("  8) Delete Cosmos DB account");
+                System.out.println("  0) Exit");
+                System.out.print("Selection: ");
 
-    private static String getBuiltInDataContributorRoleDefinition() {
-            // Built-in role definition ID for Data Contributor
-            String roleDefinitionId = "00000000-0000-0000-0000-000000000002";
+                String selection = scanner.nextLine().trim();
+                if (selection.isBlank()) {
+                    continue;
+                }
 
-            // Retrieve the role definition resource using the constructed ID
-            SqlRoleDefinitionGetResultsInner roleDefinition = cosmosManager.serviceClient().getSqlResources().getSqlRoleDefinition(roleDefinitionId, resourceGroupName, accountName);
-
-            return roleDefinition.id();
-    }
-
-    private static String createOrUpdateCustomRoleDefinition() {
-        String scope = getAssignableScope(Scope.Account);
-        SqlRoleDefinitionCreateUpdateParameters properties = new SqlRoleDefinitionCreateUpdateParameters();
-        List<com.azure.resourcemanager.cosmos.models.Permission> permissions = List.of();
-        com.azure.resourcemanager.cosmos.models.Permission permission = new com.azure.resourcemanager.cosmos.models.Permission();
-        List<String> dataActions = new java.util.ArrayList<>(List.of());
-        dataActions.add("Microsoft.DocumentDB/databaseAccounts/readMetadata");
-        dataActions.add("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/create");
-        dataActions.add("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read");
-        dataActions.add("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/replace");
-        dataActions.add("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/upsert");
-        dataActions.add("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery");
-        dataActions.add("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed");
-        dataActions.add("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeStoredProcedure");
-        dataActions.add("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/manageConflicts");
-        permission.withDataActions(dataActions);
-        properties.withAssignableScopes(List.of(scope));
-        properties.withRoleName("My Custom Cosmos DB Permissions");
-        //permissions.add(permission);
-        properties.withPermissions(List.of(permission));
-        String roleDefinitionId = UUID.randomUUID().toString();
-        // create or update the role definition
-        SqlRoleDefinitionGetResultsInner roleDefinition = cosmosManager.serviceClient().getSqlResources().createUpdateSqlRoleDefinition(roleDefinitionId, resourceGroupName, accountName, properties);
-        System.out.println("Created new Custom Role Definition: " + roleDefinition.id());
-
-        return roleDefinitionId;
-    }
-
-
-    private static String getCurrentUserPrincipalIdAsync(TokenCredential credential) {
-        try {
-            // Create a credential using DefaultAzureCredential
-            credential = new DefaultAzureCredentialBuilder().build();
-
-            // Create a GraphServiceClient using the credential
-            TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(credential);
-            GraphServiceClient<Request> graphClient = GraphServiceClient
-                    .builder()
-                    .authenticationProvider(authProvider)
-                    .buildClient();
-
-            // Get the currently signed-in user
-            User user = graphClient.me()
-                    .buildRequest()
-                    .get();
-
-            // Return the principal ID (user ID)
-            if (user == null || user.id == null) {
-                throw new IllegalArgumentException("User or User ID is null.");
+                try {
+                    switch (selection) {
+                        case "1" -> sample.run();
+                        case "2" -> sample.createOrUpdateCosmosDBAccount();
+                        case "3" -> sample.createOrUpdateAzureRoleAssignment();
+                        case "4" -> sample.createOrUpdateCosmosDBDatabase();
+                        case "5" -> sample.createOrUpdateCosmosDBContainer();
+                        case "6" -> {
+                            int delta = promptInt(scanner, "Throughput delta to add", 1000);
+                            sample.updateThroughput(delta);
+                        }
+                        case "7" -> sample.createOrUpdateCosmosSqlRoleAssignment();
+                        case "8" -> {
+                            if (confirmDelete(scanner)) {
+                                sample.deleteCosmosDBAccount();
+                            } else {
+                                System.out.println("Delete cancelled.");
+                            }
+                        }
+                        case "0", "q", "quit", "exit" -> {
+                            return;
+                        }
+                        default -> System.out.println("Unknown selection.");
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Operation failed: " + ex.getClass().getName() + ": " + ex.getMessage());
+                    ex.printStackTrace(System.err);
+                }
             }
-            return user.id;
+        }
+    }
 
-        } catch (Exception e) {
-            System.err.println("An error occurred while fetching the principal ID: " + e.getMessage());
+    private static void runOne(CosmosManagement sample, String selection, Integer delta, boolean confirmDelete) {
+        switch (selection) {
+            case "1" -> sample.run();
+            case "2" -> sample.createOrUpdateCosmosDBAccount();
+            case "3" -> sample.createOrUpdateAzureRoleAssignment();
+            case "4" -> sample.createOrUpdateCosmosDBDatabase();
+            case "5" -> sample.createOrUpdateCosmosDBContainer();
+            case "6" -> sample.updateThroughput(delta != null ? delta : 1000);
+            case "7" -> sample.createOrUpdateCosmosSqlRoleAssignment();
+            case "8" -> {
+                if (!confirmDelete) {
+                    throw new IllegalArgumentException("Refusing to delete without --confirm-delete.");
+                }
+                sample.deleteCosmosDBAccount();
+            }
+            default -> throw new IllegalArgumentException("Unknown selection: " + selection);
+        }
+    }
+
+    private static String parseSelection(String[] args) {
+        if (args == null || args.length == 0) {
             return null;
         }
+
+        for (String arg : args) {
+            if (arg == null) {
+                continue;
+            }
+
+            String trimmed = arg.trim();
+            if (trimmed.isBlank()) {
+                continue;
+            }
+
+            if (trimmed.equals("--help") || trimmed.equals("-h")) {
+                printHelp();
+                System.exit(0);
+            }
+
+            if (trimmed.matches("^[0-8]$")) {
+                return trimmed;
+            }
+
+            String lower = trimmed.toLowerCase(Locale.ROOT);
+            if (lower.startsWith("--option=")) {
+                return trimmed.substring("--option=".length()).trim();
+            }
+            if (lower.startsWith("--selection=")) {
+                return trimmed.substring("--selection=".length()).trim();
+            }
+        }
+
+        return null;
     }
 
-    private static void getCosmosDbAccount(CosmosManager cosmosManager) {
-        CosmosDBAccount account = cosmosManager.databaseAccounts()
-                .getByResourceGroup(resourceGroupName, accountName);
+    private static Integer parseDelta(String[] args) {
+        if (args == null) {
+            return null;
+        }
 
-        System.out.println("Cosmos DB Account Details:");
-        System.out.println("Account Name: " + account.name());
-        System.out.println("Region: " + account.regionName());
-        System.out.println("Kind: " + account.kind());
-        System.out.println("Consistency Policy: " + account.consistencyPolicy().defaultConsistencyLevel());
-        System.out.println("Readable locations: " + account.readableReplications().stream().map(Location::locationName).collect(Collectors.joining(",")));
-        System.out.println("Writable locations: " + account.writableReplications().stream().map(Location::locationName).collect(Collectors.joining(",")));
+        for (String arg : args) {
+            if (arg == null) {
+                continue;
+            }
+            String trimmed = arg.trim();
+            if (trimmed.isBlank()) {
+                continue;
+            }
+            String lower = trimmed.toLowerCase(Locale.ROOT);
+            if (lower.startsWith("--delta=")) {
+                String value = trimmed.substring("--delta=".length()).trim();
+                try {
+                    return Integer.parseInt(value);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid --delta value: " + value);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static boolean parseConfirmDelete(String[] args) {
+        if (args == null) {
+            return false;
+        }
+
+        for (String arg : args) {
+            if (arg == null) {
+                continue;
+            }
+            if (arg.trim().equalsIgnoreCase("--confirm-delete")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static void printHelp() {
+        System.out.println("Usage: CosmosDBManagement [<selection>] [--delta=<n>] [--confirm-delete]");
+        System.out.println();
+        System.out.println("Selections:");
+        System.out.println("  1  Run full sample");
+        System.out.println("  2  Create/update Cosmos DB account");
+        System.out.println("  3  Create Azure RBAC assignment (Cosmos DB Operator)");
+        System.out.println("  4  Create/update NoSQL database");
+        System.out.println("  5  Create/update NoSQL container");
+        System.out.println("  6  Update container throughput (+delta)");
+        System.out.println("  7  Create Cosmos NoSQL RBAC assignment (Built-in Data Contributor)");
+        System.out.println("  8  Delete Cosmos DB account (requires --confirm-delete)");
+    }
+
+    private static int promptInt(Scanner scanner, String label, int defaultValue) {
+        System.out.print(label + " (default " + defaultValue + "): ");
+        String raw = scanner.nextLine();
+        if (raw == null || raw.isBlank()) {
+            return defaultValue;
+        }
+
+        try {
+            return Integer.parseInt(raw.trim());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    private static boolean confirmDelete(Scanner scanner) {
+        System.out.print("Type DELETE to confirm deleting the Cosmos DB account: ");
+        String raw = scanner.nextLine();
+        return raw != null && raw.trim().toUpperCase(Locale.ROOT).equals("DELETE");
     }
 }
