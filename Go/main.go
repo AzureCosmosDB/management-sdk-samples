@@ -35,16 +35,17 @@ var (
 	containerName          string
 	maxAutoScaleThroughput int
 	credential             *azidentity.DefaultAzureCredential
-	err                    error
 )
 
+// main is the entry point for the Cosmos DB management sample.
 func main() {
 	loadConfiguration()
 
-	credential, err = azidentity.NewDefaultAzureCredential(nil)
+	cred, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
 		log.Fatalf("failed to obtain a credential: %v", err)
 	}
+	credential = cred
 
 	ctx := context.Background()
 
@@ -57,6 +58,7 @@ func main() {
 	runInteractiveMenu(ctx)
 }
 
+// runFullSample runs the end-to-end management-plane workflow with sensible defaults.
 func runFullSample(ctx context.Context) {
 	initializeSubscription(ctx)
 
@@ -79,6 +81,7 @@ func runFullSample(ctx context.Context) {
 	}
 }
 
+// runInteractiveMenu runs a simple interactive menu for the sample.
 func runInteractiveMenu(ctx context.Context) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -202,28 +205,9 @@ func isInteractiveTerminal() bool {
 func loadConfiguration() {
 	viper.SetConfigType("json")
 	viper.AddConfigPath(".")
-
-	// Defaults
-	viper.SetDefault("MaxAutoScaleThroughput", 1000)
-
-	// Environment variable overrides (more common in Go apps and CI).
-	// These mirror the Java sample's env naming.
-	_ = viper.BindEnv("SubscriptionId", "AZURE_SUBSCRIPTION_ID")
-	_ = viper.BindEnv("ResourceGroupName", "AZURE_RESOURCE_GROUP")
-	_ = viper.BindEnv("AccountName", "COSMOS_ACCOUNT_NAME")
-	_ = viper.BindEnv("Location", "AZURE_LOCATION")
-	_ = viper.BindEnv("DatabaseName", "COSMOS_DATABASE_NAME")
-	_ = viper.BindEnv("ContainerName", "COSMOS_CONTAINER_NAME")
-	_ = viper.BindEnv("MaxAutoScaleThroughput", "COSMOS_MAX_AUTOSCALE_THROUGHPUT")
-	viper.AutomaticEnv()
-
-	// Config file name (idiomatic Go samples typically use config.json).
 	viper.SetConfigName("config")
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf(
-			"Missing configuration. Copy Go/config.json.sample to Go/config.json and fill it in, or set env vars: AZURE_SUBSCRIPTION_ID, AZURE_RESOURCE_GROUP, AZURE_LOCATION, COSMOS_ACCOUNT_NAME, COSMOS_DATABASE_NAME, COSMOS_CONTAINER_NAME, COSMOS_MAX_AUTOSCALE_THROUGHPUT. Original error: %v",
-			err,
-		)
+		log.Fatalf("Missing configuration. Copy Go/config.json.sample to Go/config.json and fill it in. Original error: %v", err)
 	}
 
 	subscriptionID = strings.TrimSpace(viper.GetString("SubscriptionId"))
@@ -232,40 +216,40 @@ func loadConfiguration() {
 	location = strings.TrimSpace(viper.GetString("Location"))
 	databaseName = strings.TrimSpace(viper.GetString("DatabaseName"))
 	containerName = strings.TrimSpace(viper.GetString("ContainerName"))
-	maxAutoScaleThroughput = viper.GetInt("MaxAutoScaleThroughput")
 
-	missing := make([]string, 0, 6)
+	missing := make([]string, 0, 7)
 	if subscriptionID == "" {
-		missing = append(missing, "SubscriptionId (AZURE_SUBSCRIPTION_ID)")
+		missing = append(missing, "SubscriptionId")
 	}
 	if resourceGroupName == "" {
-		missing = append(missing, "ResourceGroupName (AZURE_RESOURCE_GROUP)")
+		missing = append(missing, "ResourceGroupName")
 	}
 	if accountName == "" {
-		missing = append(missing, "AccountName (COSMOS_ACCOUNT_NAME)")
+		missing = append(missing, "AccountName")
 	}
 	if location == "" {
-		missing = append(missing, "Location (AZURE_LOCATION)")
+		missing = append(missing, "Location")
 	}
 	if databaseName == "" {
-		missing = append(missing, "DatabaseName (COSMOS_DATABASE_NAME)")
+		missing = append(missing, "DatabaseName")
 	}
 	if containerName == "" {
-		missing = append(missing, "ContainerName (COSMOS_CONTAINER_NAME)")
+		missing = append(missing, "ContainerName")
+	}
+	if !viper.IsSet("MaxAutoScaleThroughput") {
+		missing = append(missing, "MaxAutoScaleThroughput")
 	}
 	if len(missing) > 0 {
-		log.Fatalf(
-			"Missing required configuration values: %s. Copy Go/config.json.sample to Go/config.json and fill it in (or set the env vars shown in parentheses).",
-			strings.Join(missing, ", "),
-		)
+		log.Fatalf("Missing required configuration values: %s. Copy Go/config.json.sample to Go/config.json and fill it in.", strings.Join(missing, ", "))
 	}
+
+	maxAutoScaleThroughput = viper.GetInt("MaxAutoScaleThroughput")
 	if maxAutoScaleThroughput < 1000 {
 		log.Fatalf("MaxAutoScaleThroughput must be >= 1000 (got %d)", maxAutoScaleThroughput)
 	}
 }
 
 func initializeSubscription(ctx context.Context) {
-
 	subscriptionClient, err := armsubscriptions.NewClient(credential, nil)
 	if err != nil {
 		log.Fatalf("failed to create subscription client: %v", err)
@@ -277,13 +261,12 @@ func initializeSubscription(ctx context.Context) {
 	}
 
 	fmt.Printf("Subscription ID: %s\n", *subscription.ID)
-
 }
 
 func createOrUpdateCosmosDBAccount(ctx context.Context) {
+	log.Printf("Starting Cosmos DB account create/update (this can take a couple minutes): account=%s", accountName)
 
 	accountClient, err := armcosmos.NewDatabaseAccountsClient(subscriptionID, credential, nil)
-
 	if err != nil {
 		log.Fatalf("failed to create cosmos db account client: %v", err)
 	}
@@ -294,18 +277,16 @@ func createOrUpdateCosmosDBAccount(ctx context.Context) {
 			"owner": to.StringPtr(getCurrentUserEmailBestEffort(ctx)),
 		},
 		Properties: &armcosmos.DatabaseAccountCreateUpdateProperties{
-			Locations: []*armcosmos.Location{
-				{
-					LocationName:     &location,
-					FailoverPriority: to.Int32Ptr(0),
-					IsZoneRedundant:  to.BoolPtr(false),
-				},
-			},
-			Capabilities: []*armcosmos.Capability{
-				{
-					Name: to.StringPtr("EnableNoSQLVectorSearch"),
-				},
-			},
+			Locations: []*armcosmos.Location{{
+				LocationName:     &location,
+				FailoverPriority: to.Int32Ptr(0),
+				IsZoneRedundant:  to.BoolPtr(false),
+			}},
+			Capabilities: []*armcosmos.Capability{{
+				Name: to.StringPtr("EnableNoSQLVectorSearch"),
+			}},
+			// Uncomment to experiment with serverless.
+			// Capabilities: append(capabilities, &armcosmos.Capability{Name: to.StringPtr("EnableServerless")}),
 			DatabaseAccountOfferType: to.StringPtr("Standard"),
 			DisableLocalAuth:         to.BoolPtr(true),
 			PublicNetworkAccess:      to.PublicNetworkAccessPtr(armcosmos.PublicNetworkAccessEnabled),
@@ -316,9 +297,7 @@ func createOrUpdateCosmosDBAccount(ctx context.Context) {
 	if err != nil {
 		log.Fatalf("failed to create resource group client: %v", err)
 	}
-
-	_, err = resourceGroupClient.Get(ctx, resourceGroupName, nil)
-	if err != nil {
+	if _, err := resourceGroupClient.Get(ctx, resourceGroupName, nil); err != nil {
 		log.Fatalf("failed to get resource group: %v", err)
 	}
 
@@ -331,11 +310,16 @@ func createOrUpdateCosmosDBAccount(ctx context.Context) {
 	if err != nil {
 		log.Fatalf("failed to poll the result: %v", err)
 	}
-	fmt.Printf("Created new Account: %s\n", *resp.ID)
-
+	if resp.ID != nil {
+		fmt.Printf("Created/updated Account: %s\n", *resp.ID)
+		return
+	}
+	fmt.Println("Created/updated Account.")
 }
 
 func deleteCosmosDBAccount(ctx context.Context) {
+	log.Printf("Starting Cosmos DB account delete (this can take a couple minutes): account=%s", accountName)
+
 	accountClient, err := armcosmos.NewDatabaseAccountsClient(subscriptionID, credential, nil)
 	if err != nil {
 		log.Fatalf("failed to create cosmos db account client: %v", err)
@@ -354,8 +338,8 @@ func deleteCosmosDBAccount(ctx context.Context) {
 	fmt.Printf("Deleted Cosmos DB account: %s\n", accountName)
 }
 
+// createOrUpdateCosmosDBDatabase creates or updates a SQL database.
 func createOrUpdateCosmosDBDatabase(ctx context.Context) {
-
 	databaseClient, err := armcosmos.NewSQLResourcesClient(subscriptionID, credential, nil)
 	if err != nil {
 		log.Fatalf("failed to create cosmos db database client: %v", err)
@@ -364,9 +348,7 @@ func createOrUpdateCosmosDBDatabase(ctx context.Context) {
 	properties := armcosmos.SQLDatabaseCreateUpdateParameters{
 		Location: &location,
 		Properties: &armcosmos.SQLDatabaseCreateUpdateProperties{
-			Resource: &armcosmos.SQLDatabaseResource{
-				ID: &databaseName,
-			},
+			Resource: &armcosmos.SQLDatabaseResource{ID: &databaseName},
 		},
 	}
 
@@ -374,7 +356,6 @@ func createOrUpdateCosmosDBDatabase(ctx context.Context) {
 	if err != nil {
 		log.Fatalf("failed to create cosmos db account client: %v", err)
 	}
-
 	if _, err := accountClient.Get(ctx, resourceGroupName, accountName, nil); err != nil {
 		log.Fatalf("failed to get cosmos db account: %v", err)
 	}
@@ -389,14 +370,24 @@ func createOrUpdateCosmosDBDatabase(ctx context.Context) {
 		log.Fatalf("failed to poll the result: %v", err)
 	}
 
-	fmt.Printf("Created new Database: %s\n", *resp.ID)
+	fmt.Printf("Created/updated Database: %s\n", *resp.ID)
 }
 
+// createOrUpdateCosmosDBContainer creates or updates a NoSQL container and configures throughput.
 func createOrUpdateCosmosDBContainer(ctx context.Context) {
 	containerClient, err := armcosmos.NewSQLResourcesClient(subscriptionID, credential, nil)
 	if err != nil {
 		log.Fatalf("failed to create cosmos db container client: %v", err)
 	}
+
+	if _, err := containerClient.GetSQLDatabase(ctx, resourceGroupName, accountName, databaseName, nil); err != nil {
+		log.Fatalf("failed to get cosmos db database: %v", err)
+	}
+
+	// NOTE: The Go `armcosmos` management SDK does not currently expose some newer SQL container fields
+	// (computed properties and vector settings like vectorEmbeddingPolicy / indexingPolicy.vectorIndexes).
+	// This sample creates the container using only fields currently supported by the SDK.
+	// When these features become supported in the Go management SDK, we will add them here.
 
 	partitionKind := armcosmos.PartitionKindMultiHash
 	indexingMode := armcosmos.IndexingModeConsistent
@@ -414,19 +405,13 @@ func createOrUpdateCosmosDBContainer(ctx context.Context) {
 					Version: to.Int32Ptr(2),
 				},
 				IndexingPolicy: &armcosmos.IndexingPolicy{
-					Automatic:    to.BoolPtr(true),
-					IndexingMode: &indexingMode,
-					IncludedPaths: []*armcosmos.IncludedPath{
-						{Path: to.StringPtr("/*")},
-					},
-					ExcludedPaths: []*armcosmos.ExcludedPath{
-						{Path: to.StringPtr("/\"_etag\"/?")},
-					},
+					Automatic:     to.BoolPtr(true),
+					IndexingMode:  &indexingMode,
+					IncludedPaths: []*armcosmos.IncludedPath{{Path: to.StringPtr("/*")}},
+					ExcludedPaths: []*armcosmos.ExcludedPath{{Path: to.StringPtr("/\"_etag\"/?")}},
 				},
 				UniqueKeyPolicy: &armcosmos.UniqueKeyPolicy{
-					UniqueKeys: []*armcosmos.UniqueKey{
-						{Paths: []*string{to.StringPtr("/userId")}},
-					},
+					UniqueKeys: []*armcosmos.UniqueKey{{Paths: []*string{to.StringPtr("/userId")}}},
 				},
 				ConflictResolutionPolicy: &armcosmos.ConflictResolutionPolicy{
 					Mode:                   &conflictResolutionModeLastWriterWins,
@@ -434,20 +419,9 @@ func createOrUpdateCosmosDBContainer(ctx context.Context) {
 				},
 			},
 			Options: &armcosmos.CreateUpdateOptions{
-				AutoscaleSettings: &armcosmos.AutoscaleSettings{
-					MaxThroughput: to.Int32Ptr(int32(maxAutoScaleThroughput)),
-				},
+				AutoscaleSettings: &armcosmos.AutoscaleSettings{MaxThroughput: to.Int32Ptr(int32(maxAutoScaleThroughput))},
 			},
 		},
-	}
-
-	databaseClient, err := armcosmos.NewSQLResourcesClient(subscriptionID, credential, nil)
-	if err != nil {
-		log.Fatalf("failed to create cosmos db database client: %v", err)
-	}
-
-	if _, err := databaseClient.GetSQLDatabase(ctx, resourceGroupName, accountName, databaseName, nil); err != nil {
-		log.Fatalf("failed to get cosmos db database: %v", err)
 	}
 
 	pollerResp, err := containerClient.BeginCreateUpdateSQLContainer(ctx, resourceGroupName, accountName, databaseName, containerName, properties, nil)
@@ -460,142 +434,19 @@ func createOrUpdateCosmosDBContainer(ctx context.Context) {
 		log.Fatalf("failed to poll the result: %v", err)
 	}
 
-	fmt.Printf("Created new Collection: %s\n", *resp.ID)
-
-	applyAdvancedSqlContainerSettingsBestEffort(ctx)
-
+	fmt.Printf("Created/updated Collection: %s\n", *resp.ID)
 }
 
-// Go SDK note:
-// The Go Cosmos DB management SDK (`armcosmos`) doesn't currently expose some newer SQL container fields
-// (computed properties + vector settings). To keep feature parity with the C#/Python/Java samples, this
-// sample applies those settings using a best-effort ARM PATCH (preview API version) after the container is
-// created/updated.
-//
-// Set this to false if you prefer to skip that ARM PATCH step.
-var applyAdvancedContainerSettingsPatch = true
-
-const cosmosContainerAdvancedSettingsAPIVersion = "2024-12-01-preview"
-
-func getSQLContainerArmResourceID() string {
-	return fmt.Sprintf(
-		"/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DocumentDB/databaseAccounts/%s/sqlDatabases/%s/containers/%s",
-		subscriptionID,
-		resourceGroupName,
+// updateThroughput updates the container throughput by a delta, handling autoscale vs manual throughput.
+func updateThroughput(ctx context.Context, addThroughput int) {
+	log.Printf(
+		"Starting throughput update (this can take a couple minutes): account=%s, database=%s, container=%s, delta=%d",
 		accountName,
 		databaseName,
 		containerName,
+		addThroughput,
 	)
-}
 
-func applyAdvancedSqlContainerSettingsBestEffort(ctx context.Context) {
-	if !applyAdvancedContainerSettingsPatch {
-		return
-	}
-
-	resourcesClient, err := armresources.NewClient(subscriptionID, credential, nil)
-	if err != nil {
-		log.Printf("Warning: failed to create ARM resources client for advanced container settings: %v", err)
-		return
-	}
-
-	resourceID := getSQLContainerArmResourceID()
-
-	properties := map[string]any{
-		"resource": map[string]any{
-			"id":         containerName,
-			"defaultTtl": -1,
-			"partitionKey": map[string]any{
-				"paths":   []string{"/companyId", "/departmentId", "/userId"},
-				"kind":    "MultiHash",
-				"version": 2,
-			},
-			"indexingPolicy": map[string]any{
-				"automatic":    true,
-				"indexingMode": "consistent",
-				"includedPaths": []any{
-					map[string]any{"path": "/*"},
-				},
-				"excludedPaths": []any{
-					map[string]any{"path": "/\"_etag\"/?"},
-				},
-				"vectorIndexes": []any{
-					map[string]any{"path": "/vectors", "type": "diskANN"},
-				},
-			},
-			"uniqueKeyPolicy": map[string]any{
-				"uniqueKeys": []any{
-					map[string]any{"paths": []string{"/userId"}},
-				},
-			},
-			"computedProperties": []any{
-				map[string]any{
-					"name":  "cp_lowerName",
-					"query": "SELECT VALUE LOWER(c.userName) FROM c",
-				},
-			},
-			"conflictResolutionPolicy": map[string]any{
-				"mode":                   "LastWriterWins",
-				"conflictResolutionPath": "/_ts",
-			},
-			"vectorEmbeddingPolicy": map[string]any{
-				"vectorEmbeddings": []any{
-					map[string]any{
-						"path":             "/vectors",
-						"dimensions":       1536,
-						"dataType":         "float32",
-						"distanceFunction": "cosine",
-					},
-				},
-			},
-		},
-	}
-
-	patch := armresources.GenericResource{
-		Location:   &location,
-		Properties: properties,
-	}
-
-	poller, err := resourcesClient.BeginUpdateByID(ctx, resourceID, cosmosContainerAdvancedSettingsAPIVersion, patch, nil)
-	if err != nil {
-		var respErr *azcore.ResponseError
-		if errors.As(err, &respErr) {
-			log.Printf(
-				"Warning: advanced container settings patch failed (status %d). Computed properties and vector settings may not be applied. You can disable this step by setting applyAdvancedContainerSettingsPatch=false in main.go. Error: %v",
-				respErr.StatusCode,
-				err,
-			)
-			return
-		}
-		log.Printf(
-			"Warning: advanced container settings patch failed. Computed properties and vector settings may not be applied. You can disable this step by setting applyAdvancedContainerSettingsPatch=false in main.go. Error: %v",
-			err,
-		)
-		return
-	}
-
-	_, err = poller.PollUntilDone(ctx, nil)
-	if err != nil {
-		var respErr *azcore.ResponseError
-		if errors.As(err, &respErr) {
-			log.Printf(
-				"Warning: advanced container settings patch did not complete successfully (status %d). Computed properties and vector settings may not be applied. Error: %v",
-				respErr.StatusCode,
-				err,
-			)
-			return
-		}
-		log.Printf(
-			"Warning: advanced container settings patch did not complete successfully. Computed properties and vector settings may not be applied. Error: %v",
-			err,
-		)
-		return
-	}
-
-	fmt.Println("Applied advanced container settings (computed properties + vector search).")
-}
-
-func updateThroughput(ctx context.Context, addThroughput int) {
 	throughputClient, err := armcosmos.NewSQLResourcesClient(subscriptionID, credential, nil)
 	if err != nil {
 		log.Fatalf("failed to create throughput client: %v", err)
@@ -605,9 +456,7 @@ func updateThroughput(ctx context.Context, addThroughput int) {
 	if err != nil {
 		var respErr *azcore.ResponseError
 		if errors.As(err, &respErr) && respErr.StatusCode == 404 {
-			log.Fatalf(
-				"Container throughput settings were not found. This usually means the container uses shared database throughput or serverless, and therefore does not have a dedicated throughput resource to update. Create the container with dedicated throughput (or update database throughput instead), then retry.",
-			)
+			log.Fatalf("Container throughput settings were not found. This usually means the container uses shared database throughput or serverless, and therefore does not have a dedicated throughput resource to update. Create the container with dedicated throughput (or update database throughput instead), then retry.")
 		}
 		log.Fatalf("failed to read existing container throughput settings: %v", err)
 	}
@@ -644,9 +493,7 @@ func updateThroughput(ctx context.Context, addThroughput int) {
 		}
 
 		fmt.Printf("Updating container autoscale max throughput from %d to %d\n", *currentAutoscaleMax, newAutoscaleMax)
-		throughput.Properties.Resource.AutoscaleSettings = &armcosmos.AutoscaleSettingsResource{
-			MaxThroughput: to.Int32Ptr(int32(newAutoscaleMax)),
-		}
+		throughput.Properties.Resource.AutoscaleSettings = &armcosmos.AutoscaleSettingsResource{MaxThroughput: to.Int32Ptr(int32(newAutoscaleMax))}
 	} else {
 		currentManual := int64(0)
 		if currentManualThroughput != nil {
@@ -684,13 +531,11 @@ func updateThroughput(ctx context.Context, addThroughput int) {
 		log.Fatalf("failed to read applied container throughput settings: %v", err)
 	}
 
-	var appliedAutoscaleMax any = nil
-	var appliedManual any = nil
+	var appliedAutoscaleMax any
+	var appliedManual any
 	if applied.Properties != nil && applied.Properties.Resource != nil {
-		if applied.Properties.Resource.AutoscaleSettings != nil {
-			if applied.Properties.Resource.AutoscaleSettings.MaxThroughput != nil {
-				appliedAutoscaleMax = *applied.Properties.Resource.AutoscaleSettings.MaxThroughput
-			}
+		if applied.Properties.Resource.AutoscaleSettings != nil && applied.Properties.Resource.AutoscaleSettings.MaxThroughput != nil {
+			appliedAutoscaleMax = *applied.Properties.Resource.AutoscaleSettings.MaxThroughput
 		}
 		if applied.Properties.Resource.Throughput != nil {
 			appliedManual = *applied.Properties.Resource.Throughput
@@ -699,6 +544,7 @@ func updateThroughput(ctx context.Context, addThroughput int) {
 	fmt.Printf("Applied throughput settings: autoscaleMax=%v, manual=%v\n", appliedAutoscaleMax, appliedManual)
 }
 
+// createOrUpdateRoleAssignment creates or updates a Cosmos SQL RBAC role assignment for the current principal.
 func createOrUpdateRoleAssignment(ctx context.Context, roleDefinitionID string) {
 	roleAssignmentClient, err := armcosmos.NewSQLResourcesClient(subscriptionID, credential, nil)
 	if err != nil {
@@ -712,15 +558,9 @@ func createOrUpdateRoleAssignment(ctx context.Context, roleDefinitionID string) 
 
 	assignableScope := getAssignableScope(Account)
 
-	properties := armcosmos.SQLRoleAssignmentCreateUpdateParameters{
-		Properties: &armcosmos.SQLRoleAssignmentResource{
-			RoleDefinitionID: &roleDefinitionID,
-			Scope:            &assignableScope,
-			PrincipalID:      to.StringPtr(principalID),
-		},
-	}
-
+	properties := armcosmos.SQLRoleAssignmentCreateUpdateParameters{Properties: &armcosmos.SQLRoleAssignmentResource{RoleDefinitionID: &roleDefinitionID, Scope: &assignableScope, PrincipalID: to.StringPtr(principalID)}}
 	roleAssignmentID := uuid5Name(fmt.Sprintf("%s|%s|%s", assignableScope, roleDefinitionID, principalID))
+
 	pollerResp, err := roleAssignmentClient.BeginCreateUpdateSQLRoleAssignment(ctx, roleAssignmentID, resourceGroupName, accountName, properties, nil)
 	if err != nil {
 		log.Fatalf("failed to create or update role assignment: %v", err)
@@ -731,15 +571,11 @@ func createOrUpdateRoleAssignment(ctx context.Context, roleDefinitionID string) 
 		log.Fatalf("failed to poll the result: %v", err)
 	}
 
-	fmt.Printf("Created new Role Assignment.\n")
+	fmt.Println("Created/updated Cosmos SQL RBAC role assignment.")
 }
 
+// createOrUpdateAzureRoleAssignment assigns the built-in Azure RBAC role (Cosmos DB Operator) at account scope.
 func createOrUpdateAzureRoleAssignment(ctx context.Context) {
-	roleAssignmentsClient, err := armauthorization.NewRoleAssignmentsClient(subscriptionID, credential, nil)
-	if err != nil {
-		log.Fatalf("failed to create Azure RBAC role assignments client: %v", err)
-	}
-
 	principalObjectID, err := getCurrentPrincipalObjectID(ctx)
 	if err != nil {
 		log.Fatalf("failed to get current principal object id: %v", err)
@@ -751,19 +587,32 @@ func createOrUpdateAzureRoleAssignment(ctx context.Context) {
 	}
 
 	scope := getAssignableScope(Account)
-	roleAssignmentName := uuid5Name(fmt.Sprintf("%s|%s|%s", scope, roleDefinitionResourceID, principalObjectID))
+	createOrUpdateAzureRoleAssignmentWithDefinition(ctx, scope, roleDefinitionResourceID, principalObjectID)
+}
 
-	properties := armauthorization.RoleAssignmentCreateParameters{
-		Properties: &armauthorization.RoleAssignmentProperties{
-			RoleDefinitionID: to.StringPtr(roleDefinitionResourceID),
-			PrincipalID:      to.StringPtr(principalObjectID),
-		},
+// createOrUpdateAzureRoleAssignmentWithDefinition creates or updates an Azure RBAC role assignment idempotently.
+func createOrUpdateAzureRoleAssignmentWithDefinition(ctx context.Context, scope string, roleDefinitionResourceID string, principalObjectID string) {
+	roleAssignmentsClient, err := armauthorization.NewRoleAssignmentsClient(subscriptionID, credential, nil)
+	if err != nil {
+		log.Fatalf("failed to create Azure RBAC role assignments client: %v", err)
 	}
+
+	roleAssignmentName := uuid5Name(fmt.Sprintf("%s|%s|%s", scope, roleDefinitionResourceID, principalObjectID))
+	properties := armauthorization.RoleAssignmentCreateParameters{Properties: &armauthorization.RoleAssignmentProperties{RoleDefinitionID: to.StringPtr(roleDefinitionResourceID), PrincipalID: to.StringPtr(principalObjectID)}}
 
 	resp, err := roleAssignmentsClient.Create(ctx, scope, roleAssignmentName, properties, nil)
 	if err != nil {
 		var respErr *azcore.ResponseError
 		if errors.As(err, &respErr) {
+			if respErr.StatusCode == 409 {
+				existing, getErr := roleAssignmentsClient.Get(ctx, scope, roleAssignmentName, nil)
+				if getErr == nil && existing.ID != nil {
+					fmt.Printf("Azure RBAC role assignment already exists: %s\n", *existing.ID)
+					return
+				}
+				fmt.Println("Azure RBAC role assignment already exists.")
+				return
+			}
 			log.Fatalf("failed to create Azure RBAC role assignment (status %d): %v", respErr.StatusCode, err)
 		}
 		log.Fatalf("failed to create Azure RBAC role assignment: %v", err)
@@ -776,12 +625,13 @@ func createOrUpdateAzureRoleAssignment(ctx context.Context) {
 	fmt.Println("Created Azure RBAC role assignment.")
 }
 
+// getBuiltInCosmosDbOperatorRoleDefinitionID resolves the Azure RBAC role definition ID by role name.
 func getBuiltInCosmosDbOperatorRoleDefinitionID(ctx context.Context) (string, error) {
-	// Built-in role definitions are available at subscription scope.
 	subscriptionScope := getAssignableScope(Subscription)
 	return getAzureRoleDefinitionIDByName(ctx, subscriptionScope, "Cosmos DB Operator")
 }
 
+// getAzureRoleDefinitionIDByName returns a role definition resource ID for a role name at the given scope.
 func getAzureRoleDefinitionIDByName(ctx context.Context, scope string, roleName string) (string, error) {
 	roleDefinitionsClient, err := armauthorization.NewRoleDefinitionsClient(credential, nil)
 	if err != nil {
@@ -809,11 +659,12 @@ func getAzureRoleDefinitionIDByName(ctx context.Context, scope string, roleName 
 	return "", fmt.Errorf("Azure RBAC role definition not found at scope %q: %s", scope, roleName)
 }
 
+// uuid5Name creates a deterministic UUID v5 (name-based) for stable IDs across reruns.
 func uuid5Name(name string) string {
-	// google/uuid.NewSHA1 implements UUID v5 (name-based, SHA-1).
 	return uuid.NewSHA1(uuid.NameSpaceURL, []byte(name)).String()
 }
 
+// getBuiltInDataContributorRoleDefinition returns the Cosmos SQL RBAC built-in data contributor role definition ID.
 func getBuiltInDataContributorRoleDefinition(ctx context.Context) (string, error) {
 	roleDefinitionClient, err := armcosmos.NewSQLResourcesClient(subscriptionID, credential, nil)
 	if err != nil {
@@ -827,17 +678,17 @@ func getBuiltInDataContributorRoleDefinition(ctx context.Context) (string, error
 	}
 
 	fmt.Printf("Found Built In Role Definition : %s\n", *roleDefinition.ID)
-
 	return *roleDefinition.ID, nil
 }
 
+// createOrUpdateCustomRoleDefinition creates a custom Cosmos SQL RBAC role definition (delete action commented out).
 func createOrUpdateCustomRoleDefinition(ctx context.Context) (string, error) {
 	roleDefinitionClient, err := armcosmos.NewSQLResourcesClient(subscriptionID, credential, nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to create role definition client: %v", err)
 	}
 
-	assignableScope := []*string{to.StringPtr(getAssignableScope("Account"))}
+	assignableScope := []*string{to.StringPtr(getAssignableScope(Account))}
 	roleDefinitionTypeCustomRole := armcosmos.RoleDefinitionTypeCustomRole
 
 	properties := armcosmos.SQLRoleDefinitionCreateUpdateParameters{
@@ -845,21 +696,20 @@ func createOrUpdateCustomRoleDefinition(ctx context.Context) (string, error) {
 			RoleName:         to.StringPtr("My Custom Cosmos DB Data Contributor Except Delete"),
 			Type:             &roleDefinitionTypeCustomRole,
 			AssignableScopes: assignableScope,
-			Permissions: []*armcosmos.Permission{
-				{
-					DataActions: []*string{
-						to.StringPtr("Microsoft.DocumentDB/databaseAccounts/readMetadata"),
-						to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/create"),
-						to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read"),
-						to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/replace"),
-						to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/upsert"),
-						to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery"),
-						to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed"),
-						to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeStoredProcedure"),
-						to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/manageConflicts"),
-					},
+			Permissions: []*armcosmos.Permission{{
+				DataActions: []*string{
+					to.StringPtr("Microsoft.DocumentDB/databaseAccounts/readMetadata"),
+					to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/create"),
+					// to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/delete"),
+					to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read"),
+					to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/replace"),
+					to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/upsert"),
+					to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery"),
+					to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed"),
+					to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeStoredProcedure"),
+					to.StringPtr("Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/manageConflicts"),
 				},
-			},
+			}},
 		},
 	}
 
@@ -871,16 +721,16 @@ func createOrUpdateCustomRoleDefinition(ctx context.Context) (string, error) {
 
 	resp, err := pollerResp.PollUntilDone(ctx, nil)
 	if err != nil {
-		log.Fatalf("failed to poll the result: %v", err)
+		return "", fmt.Errorf("failed to poll the result: %v", err)
 	}
 
 	fmt.Printf("Created Custom Role Definition: %s\n", *resp.ID)
 	return *resp.ID, nil
-
 }
 
 const armTokenScope = "https://management.azure.com/.default"
 
+// getCurrentPrincipalObjectID returns the current principal object ID from the ARM token (or env override).
 func getCurrentPrincipalObjectID(ctx context.Context) (string, error) {
 	if override := strings.TrimSpace(os.Getenv("AZURE_PRINCIPAL_OBJECT_ID")); override != "" {
 		return override, nil
@@ -895,11 +745,10 @@ func getCurrentPrincipalObjectID(ctx context.Context) (string, error) {
 		return strings.TrimSpace(oid), nil
 	}
 
-	return "", fmt.Errorf(
-		"could not determine current principal object id (oid) from the ARM access token. Set AZURE_PRINCIPAL_OBJECT_ID to the object id you want to assign roles to",
-	)
+	return "", fmt.Errorf("could not determine current principal object id (oid) from the ARM access token")
 }
 
+// getCurrentUserEmailBestEffort extracts a user identifier (UPN/email) from the ARM token claims.
 func getCurrentUserEmailBestEffort(ctx context.Context) string {
 	claims, err := getArmTokenClaims(ctx)
 	if err != nil {
@@ -918,6 +767,7 @@ func getCurrentUserEmailBestEffort(ctx context.Context) string {
 	return ""
 }
 
+// getArmTokenClaims acquires an ARM access token and parses its JWT claims.
 func getArmTokenClaims(ctx context.Context) (map[string]any, error) {
 	token, err := credential.GetToken(ctx, policy.TokenRequestOptions{Scopes: []string{armTokenScope}})
 	if err != nil {
@@ -952,6 +802,7 @@ const (
 	Container     Scope = "Container"
 )
 
+// getAssignableScope returns the ARM scope string used for role definitions/assignments.
 func getAssignableScope(scope Scope) string {
 	switch scope {
 	case Subscription:
