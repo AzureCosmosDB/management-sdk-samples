@@ -1,0 +1,10 @@
+# Copy this file to application.properties (not committed) or set the equivalent environment variables.
+#
+# Required
+subscriptionId=
+resourceGroupName=
+location=eastus
+accountName=
+databaseName=database1
+containerName=container1
+maxAutoScaleThroughput=1000

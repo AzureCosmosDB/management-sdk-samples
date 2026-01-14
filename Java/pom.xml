@@ -18,17 +18,52 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>enforce-java</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <fail>true</fail>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[21,)</version>
+                                    <message>
+This sample requires Java 21 (LTS).
+
+Install JDK 21 and make sure both VS Code and your terminal are using it.
+
+Windows quick setup options:
+    - If you have Chocolatey:
+            choco install Temurin21 maven -y
+  - If you have winget:
+      winget install --id Microsoft.OpenJDK.21 -e
+  - Without winget:
+      Install a JDK 21 (LTS) MSI (e.g., Microsoft Build of OpenJDK 21 or Eclipse Temurin 21),
+      set JAVA_HOME to the install directory, and restart VS Code/terminal.
+                                    </message>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.0.0</version>
+                <configuration>
+                    <mainClass>com.example.CosmosDBManagement</mainClass>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
                             <goal>java</goal>
                         </goals>
-                        <configuration>
-                            <mainClass>com.example.CosmosDBManagement</mainClass>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -52,6 +87,11 @@
             <version>2.51.0</version>
         </dependency>
         <dependency>
+            <groupId>com.azure.resourcemanager</groupId>
+            <artifactId>azure-resourcemanager-authorization</artifactId>
+            <version>2.51.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-identity</artifactId>
             <version>1.15.2</version>
@@ -60,11 +100,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.32</version>
-        </dependency>
-        <dependency>
-            <groupId>com.microsoft.graph</groupId>
-            <artifactId>microsoft-graph</artifactId>
-            <version>3.7.0</version> <!-- Check for the latest version -->
         </dependency>
     </dependencies>
 

@@ -9,12 +9,14 @@ This is useful when your application uses **Microsoft Entra ID** and you want to
 ## Sample features
 
 ### Accounts (control plane)
+
 - Create or update a Cosmos DB **SQL (NoSQL)** account.
 - Sets `DisableLocalAuth = true` (disables key-based auth; Entra ID + RBAC required).
 - Enables the `EnableNoSQLVectorSearch` capability.
 - Leaves a **serverless** capability example commented out.
 
 ### Database and container (control plane)
+
 - Create or update a SQL database.
 - Create or update a SQL container with:
   - Hierarchical partition key (multi-hash) on `/companyId`, `/departmentId`, `/userId`.
@@ -27,6 +29,7 @@ This is useful when your application uses **Microsoft Entra ID** and you want to
   - Autoscale max throughput from configuration.
 
 ### Throughput
+
 - Updates **container dedicated throughput** by reading current settings first and then:
   - Updating autoscale max throughput when the container is autoscale, or
   - Updating RU/s when the container is manual throughput.
@@ -34,6 +37,7 @@ This is useful when your application uses **Microsoft Entra ID** and you want to
 - Throws a clear error when the throughput resource doesn’t exist (common for **serverless** accounts or **shared database throughput**).
 
 ### Role-based access control (RBAC)
+
 This sample creates **two role assignments by default** for the currently signed-in principal:
 
 - **Azure RBAC (control plane)**: assigns the built-in `Cosmos DB Operator` role to the Cosmos account scope.
@@ -42,6 +46,7 @@ This sample creates **two role assignments by default** for the currently signed
 It also includes a **custom Cosmos DB SQL RBAC role definition** example (not used by default).
 
 ### Interactive menu + safe delete
+
 - Runs an interactive menu by default.
 - Includes a "Run full sample" menu option.
 - Supports deleting the Cosmos DB account:

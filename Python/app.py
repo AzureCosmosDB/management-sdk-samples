@@ -521,7 +521,8 @@ async def create_or_update_cosmos_role_assignment(role_definition_id: str):
         scope=assignable_scope
     )
 
-    role_assignment_id = str(uuid.uuid4())
+    # Use a stable GUID so repeated runs are idempotent (same PUT resource each time).
+    role_assignment_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{assignable_scope}|{role_definition_id}|{principal_id}"))
     response = await COSMOS_CLIENT.sql_resources.begin_create_update_sql_role_assignment(
         resource_group_name=settings.resource_group_name,
         account_name=settings.account_name,
