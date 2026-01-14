@@ -1,0 +1,9 @@
+{
+  "SubscriptionId": "",
+  "ResourceGroupName": "",
+  "AccountName": "",
+  "Location": "eastus",
+  "DatabaseName": "database1",
+  "ContainerName": "container1",
+  "MaxAutoScaleThroughput": 1000
+}

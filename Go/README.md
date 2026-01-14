@@ -9,64 +9,38 @@ You can find the source code and for this and other Azure SDKs at:
 
 
 ## Prerequisites
- - Go 1.16 or later
+ - Go 1.22+ (this sample is validated with Go 1.24.x)
+ - VS Code + Go extension: `golang.go`
 
 ## Setup
 
-### Windows
+If you already have Go installed, the only thing you should need is to restore dependencies.
 
-1. Download the Go installer from the [official website](https://go.dev/doc/install).
-2. Run the installer and follow the instructions.
-3. Verify the installation by opening Command Prompt and running:
+From the repo root:
 
-```dos
+```bash
+cd Go
 go version
+go mod tidy
 ```
 
-### Mac
-
-Install Go using Homebrew:
-
-``` bash
-brew install go
-```
-
-Verify the installation by opening Terminal and running:
-
-``` bash
-go version
-```
-
-
-### Set Up the Project
-
-Initialize a new Go module by opening a terminal (Command Prompt on Windows or Terminal on Mac) and navigate to the project directory.
-
-``` bash
-go mod init your-module-name
-```
-
-This command creates a go.mod file, which tracks your project's dependencies.
-
-Install the required dependencies:
-
-``` bash
-
-go get github.com/Azure/azure-sdk-for-go/sdk/azidentity
-go get github.com/Azure/azure-sdk-for-go/sdk/azcore/policy
-go get github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos
-go get github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources
-go get github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armsubscriptions
-go get github.com/spf13/viper
-go get github.com/google/uuid
-
-```
-
-The go get command downloads the specified packages and adds them to your go.mod file.
+Notes:
+- `go mod tidy` is safe to re-run; it ensures your local module cache has everything needed.
 
 ### Configuration
 
-Update the `appsettings.json` in the project directory with the following content:
+This sample reads configuration from `Go/config.json`.
+
+You can override any value using environment variables (useful for CI).
+
+1. Copy the sample config:
+
+```bash
+cd Go
+copy config.json.sample config.json
+```
+
+2. Edit `config.json` and fill in your values:
 
 ```json
 {
@@ -80,21 +54,44 @@ Update the `appsettings.json` in the project directory with the following conten
 }
 ```
 
+Environment variable equivalents:
+- `AZURE_SUBSCRIPTION_ID`
+- `AZURE_RESOURCE_GROUP`
+- `AZURE_LOCATION`
+- `COSMOS_ACCOUNT_NAME`
+- `COSMOS_DATABASE_NAME`
+- `COSMOS_CONTAINER_NAME`
+- `COSMOS_MAX_AUTOSCALE_THROUGHPUT` (optional, default 1000)
+
 ### Running the Code
 
 Run the Go program:
 
 ``` bash
-go run main.go
+cd Go
+go run .
 ```
+
+## Debugging in VS Code
+
+1. Open the workspace file [Go.code-workspace](../Go.code-workspace)
+2. Make sure the VS Code Go extension is installed: `golang.go`
+3. Press **F5** and select the launch config **“Go: Debug sample”**
+
+If VS Code prompts to install the Go debugger (Delve), allow it. If debugging fails, run the VS Code command:
+**Go: Install/Update Tools**.
 
 ### Project Structure
 
  - main.go: The main application file containing the logic to manage Cosmos DB resources.
- - appsettings.json: Configuration file for the project.
+ - config.json: Configuration file for the project.
+ - config.json.sample: Template config (copy to config.json).
  - to/to.go: Helper functions for converting values to pointers.
 
 
 ## Notes
  - Ensure you have the necessary permissions in your Azure subscription to create and manage Cosmos DB resources.
+ - If the Azure RBAC role assignment step fails, your identity likely lacks `Microsoft.Authorization/roleAssignments/write` at the Cosmos account scope (you typically need Owner or User Access Administrator).
+ - The Go `armcosmos` management SDK currently doesn't expose some newer container fields (e.g., computed properties and vector settings). To keep parity with other samples, this Go sample applies those settings via a best-effort ARM PATCH using `Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-12-01-preview`.
+   - To skip that step, set `applyAdvancedContainerSettingsPatch = false` in [Go/main.go](main.go).
  - For Go-related issues, refer to the official [Go documentation](https://pkg.go.dev/github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos#section-documentation).
