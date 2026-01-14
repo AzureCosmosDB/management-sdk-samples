@@ -1,7 +1,7 @@
 {
   "folders": [
     {
-      "path": "."
+	  "path": "Go"
     }
   ],
   "launch": {
@@ -12,8 +12,10 @@
         "type": "go",
         "request": "launch",
         "mode": "auto",
-        "program": "${workspaceFolder}/Go",
-        "cwd": "${workspaceFolder}/Go"
+	"program": "${workspaceFolder}",
+	"cwd": "${workspaceFolder}",
+	"console": "integratedTerminal",
+	"internalConsoleOptions": "neverOpen"
       }
     ]
   },

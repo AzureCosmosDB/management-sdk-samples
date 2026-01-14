@@ -1,13 +1,13 @@
 {
   "folders": [
     {
-      "path": "."
+	  "path": "Python"
     }
   ],
   "settings": {
-    "python.defaultInterpreterPath": "${workspaceFolder}/Python/.venv/Scripts/python.exe",
+	"python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
     "python-envs.pythonProjects": [
-      "${workspaceFolder}/Python"
+	  "${workspaceFolder}"
     ]
   },
   "launch": {
@@ -17,10 +17,10 @@
         "name": "Python: Debug sample",
         "type": "python",
         "request": "launch",
-        "python": "${workspaceFolder}/Python/.venv/Scripts/python.exe",
-        "program": "${workspaceFolder}/Python/app.py",
-        "cwd": "${workspaceFolder}/Python",
-        "envFile": "${workspaceFolder}/Python/config.env",
+		"python": "${workspaceFolder}/.venv/Scripts/python.exe",
+		"program": "${workspaceFolder}/app.py",
+		"cwd": "${workspaceFolder}",
+		"envFile": "${workspaceFolder}/config.env",
         "console": "integratedTerminal",
         "justMyCode": true
       }
