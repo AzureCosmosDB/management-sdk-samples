@@ -32,7 +32,7 @@ The samples are available in 5 languages including:
 - [Python](/Python/README.md)
 - [Go](/Go/README.md)
 - [Java](/Java/readme.md)
-- [JavaScript](/JavaScript/README.md) (placeholder)
+- [JavaScript](/JavaScript/README.md)
 
 ## VS Code debugging (recommended)
 
@@ -44,6 +44,7 @@ To avoid VS Code debug adapter errors when you don't have every language extensi
 - [Csharp.code-workspace](Csharp.code-workspace)
 - [Go.code-workspace](Go.code-workspace)
 - [Java.code-workspace](Java.code-workspace)
+- [JavaScript.code-workspace](JavaScript.code-workspace)
 
 ### How to open a workspace file
 

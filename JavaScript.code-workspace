@@ -1,0 +1,24 @@
+{
+  "folders": [
+    {
+      "path": "JavaScript"
+    }
+  ],
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Node.js: Debug sample",
+        "type": "node",
+        "request": "launch",
+        "program": "${workspaceFolder}/src/index.js",
+        "cwd": "${workspaceFolder}",
+        "envFile": "${workspaceFolder}/config.env",
+        "console": "integratedTerminal"
+      }
+    ]
+  },
+  "extensions": {
+    "recommendations": []
+  }
+}
