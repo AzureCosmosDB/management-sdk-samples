@@ -1,22 +1,22 @@
 # Azure Management SDK Samples for Azure Cosmos DB
 
-This repository contains of Azure Management SDK samples for Azure Cosmos DB to create and update Azure Cosmos DB resources through it's resource provider (control plane). Azure resource providers are used to provision and manage resources in Azure.
+This repository contains Azure Management SDK samples for Azure Cosmos DB to create and update Azure Cosmos DB resources through its resource provider (control plane). Azure resource providers are used to provision and manage resources in Azure.
 
-The samples can be used to support users who are adopting Microsoft Entra Id and disabling key-based access to their data and want to manage their Cosmos resources using an SDK rather than use Bicep templates, PowerShell or Azure CLI.
+The samples can be used to support users who are adopting Microsoft Entra ID and disabling key-based access to their data, and want to manage their Cosmos resources using an SDK rather than using Bicep templates, PowerShell, or Azure CLI.
 
 ## Resource Operations
 
 These samples demonstrate create or update operations on the following Cosmos DB resources, including:
 
 - Accounts:
-    - Serverless, IP firewall rules, and disabling local auth (key-based data plane access) to force Entra Id for Auth-N and role-based access control (RBAC) for Auth-Z
+  - Serverless, IP firewall rules, and disabling local auth (key-based data plane access) to force Entra ID for Auth-N and role-based access control (RBAC) for Auth-Z
 - Databases
 - Containers:
-    - Hierarchical partition keys, index policies, unique keys, ttl, conflict resolution policies, autoscale throughput
+  - Hierarchical partition keys, index policies, unique keys, TTL, conflict resolution policies, autoscale throughput
 - Throughput
-    - Update autoscale or manual throughput
+  - Update autoscale or manual throughput
 - RBAC definitions:
-    - Creating a built-in definition, creating a custom RBAC definition
+  - Creating a built-in definition, creating a custom RBAC definition
 - RBAC assignments
 
 The samples also include some other handy conveniences for developers working with Cosmos resources including:
@@ -36,7 +36,9 @@ The samples are available in 5 languages including:
 
 ## VS Code debugging (recommended)
 
-This repo contains samples in multiple languages/frameworks. Use the `*.code-workspace` files at the repo root so you can keep all projects visible side-by-side (the workspace opens the repo root), while only enabling the debug/settings for the language you're working on.
+This repo contains samples in multiple languages/frameworks. Use the `*.code-workspace` files at the repo root to open and debug a single language sample at a time.
+
+Each workspace file opens only that language's folder (for example, `Python.code-workspace` opens `Python/`). This keeps debug configuration, settings, and environment-file handling isolated per sample.
 
 To avoid VS Code debug adapter errors when you don't have every language extension installed, open the workspace file for the language you're working on:
 
@@ -57,12 +59,12 @@ Then use **Run and Debug** (or press **F5**) to start that sample.
 
 Notes:
 
-- Opening the repo as a normal folder is not recommended (by design), because interpreter/debug settings are isolated per language workspace.
+- Opening the repo as a normal folder is fine for browsing, but the run/debug configurations are intentionally isolated per language workspace file.
 - If you switch between languages, just open the other workspace file.
 
 ## Azure Management SDK source code repositories
 
-All Azure Management SDK's are open source. For more information and the source for the underlying Azure Management SDK's, visit their GitHub repositories.
+All Azure Management SDKs are open source. For more information and the source for the underlying Azure Management SDKs, visit their GitHub repositories.
 
 - [C#](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/cosmosdb/Azure.ResourceManager.CosmosDB)
 - [Python](https://github.com/Azure/azure-sdk-for-python/tree/main/sdk/cosmos/azure-mgmt-cosmosdb)
@@ -72,7 +74,7 @@ All Azure Management SDK's are open source. For more information and the source 
 
 ## How to file issues and get help  
 
-Azure Management SDKs are fully supported by Microsoft. For issues related to them please open a support ticket. The GitHub issues for this repository is not the correct channel for support.
+Azure Management SDKs are fully supported by Microsoft. For issues related to them, please open a support ticket. GitHub issues in this repository are not the correct channel for support.
 
 For questions, feature requests or issues related to just the samples themselves, please use GitHub Issues.
 Please search the existing issues before filing new ones to avoid duplicates.
@@ -81,7 +83,7 @@ Please search the existing issues before filing new ones to avoid duplicates.
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+the rights to use your contribution. For details, visit [https://cla.opensource.microsoft.com](https://cla.opensource.microsoft.com).
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
