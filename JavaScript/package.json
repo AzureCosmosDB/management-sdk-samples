@@ -1,0 +1,22 @@
+{
+  "name": "@azurecosmosdb/management-sdk-samples-javascript",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Azure Cosmos DB management-plane sample using the Azure SDK for JavaScript.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "@azure/arm-authorization": "^9.0.0",
+    "@azure/arm-cosmosdb": "^16.1.0",
+    "@azure/identity": "^4.5.0",
+    "dotenv": "^16.4.7",
+    "uuid": "^9.0.1"
+  }
+}

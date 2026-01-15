@@ -41,6 +41,8 @@ out/
 # Environment files
 .env
 .env.*
+config.env
+config.env.*
 
 # IDE/editor
 .vscode/
