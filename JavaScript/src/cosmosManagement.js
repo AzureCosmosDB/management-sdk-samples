@@ -138,7 +138,8 @@ export async function createOrUpdateAzureRbacCosmosDbOperatorAssignment(clients,
   // Deterministic GUID so repeated runs are idempotent.
   const roleAssignmentName = getStableGuid(`${scope}|${roleDefinitionId}|${principalId}`);
 
-  const assignment = await clients.authorizationClient.roleAssignments.create(scope, roleAssignmentName, {
+  // The authorization SDK inserts its own "/" before the scope in the request URL.
+  const assignment = await clients.authorizationClient.roleAssignments.create(scope.slice(1), roleAssignmentName, {
     roleDefinitionId,
     principalId,
     description: "Role assignment for Cosmos DB (management plane)",
@@ -175,9 +176,9 @@ export async function createOrUpdateCosmosNoSqlRbacDataContributorAssignment(cli
   // Cosmos DB SQL RBAC built-in role definition ID.
   const roleDefinitionGuid = "00000000-0000-0000-0000-000000000002";
   const roleDefinition = await clients.cosmosClient.sqlResources.getSqlRoleDefinition(
-    roleDefinitionGuid,
     config.resourceGroupName,
     config.accountName,
+    roleDefinitionGuid,
   );
   const roleDefinitionId = roleDefinition?.id;
   if (!roleDefinitionId) {
@@ -188,9 +189,9 @@ export async function createOrUpdateCosmosNoSqlRbacDataContributorAssignment(cli
   const roleAssignmentId = getStableGuid(`${assignableScope}|${roleDefinitionId}|${principalId}`);
 
   const assignment = await clients.cosmosClient.sqlResources.beginCreateUpdateSqlRoleAssignmentAndWait(
-    roleAssignmentId,
     config.resourceGroupName,
     config.accountName,
+    roleAssignmentId,
     {
       roleDefinitionId,
       principalId,
@@ -230,9 +231,9 @@ export async function createOrUpdateCustomCosmosNoSqlRbacRoleDefinitionExceptDel
   const roleDefinitionId = "11111111-1111-1111-1111-111111111111";
 
   const roleDefinition = await clients.cosmosClient.sqlResources.beginCreateUpdateSqlRoleDefinitionAndWait(
-    roleDefinitionId,
     config.resourceGroupName,
     config.accountName,
+    roleDefinitionId,
     {
       roleName,
       type: "CustomRole",

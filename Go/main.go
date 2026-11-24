@@ -18,10 +18,10 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
-	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/authorization/armauthorization"
-	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos"
-	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources"
-	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armsubscriptions"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/authorization/armauthorization/v2"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos/v4"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources/v4"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armsubscriptions/v2"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 )
@@ -383,11 +383,6 @@ func createOrUpdateCosmosDBContainer(ctx context.Context) {
 	if _, err := containerClient.GetSQLDatabase(ctx, resourceGroupName, accountName, databaseName, nil); err != nil {
 		log.Fatalf("failed to get cosmos db database: %v", err)
 	}
-
-	// NOTE: The Go `armcosmos` management SDK does not currently expose some newer SQL container fields
-	// (computed properties and vector settings like vectorEmbeddingPolicy / indexingPolicy.vectorIndexes).
-	// This sample creates the container using only fields currently supported by the SDK.
-	// When these features become supported in the Go management SDK, we will add them here.
 
 	partitionKind := armcosmos.PartitionKindMultiHash
 	indexingMode := armcosmos.IndexingModeConsistent

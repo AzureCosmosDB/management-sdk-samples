@@ -52,7 +52,7 @@ This sample creates **two role assignments by default** for the currently signed
 ## Prerequisites
 
 - An Azure subscription and a resource group.
-- Java Development Kit (JDK) 21 (LTS).
+- Java Development Kit (JDK) 25 (LTS). The included wrapper downloads Maven 3.10.2.
 - Azure identity available to `DefaultAzureCredential` (for example: `az login`, VS Code sign-in, Managed Identity, etc.).
 - Permissions:
     - To create/update Cosmos resources: typically **Contributor** on the resource group.
@@ -60,14 +60,14 @@ This sample creates **two role assignments by default** for the currently signed
 
 ### Windows quick setup (recommended)
 
-If you want a simple “set it once and forget it” Java environment on Windows, install JDK 21 and set `JAVA_HOME`.
+Install JDK 25 and set `JAVA_HOME`.
 
 #### Option A: With Winget
 
-1) Install JDK 21 (LTS):
+1) Install JDK 25 (LTS):
 
 ```powershell
-winget install --id Microsoft.OpenJDK.21 -e
+winget install --id Microsoft.OpenJDK.25 -e
 ```
 
 1) (Optional) Install Maven.
@@ -78,7 +78,7 @@ This repo includes Maven Wrapper, so Maven is not required, but having Maven ins
 winget install --id Apache.Maven -e
 ```
 
-1) Set `JAVA_HOME` to your JDK 21 install directory (User or System environment variable), then restart VS Code and any terminals.
+1) Set `JAVA_HOME` to your JDK 25 install directory (User or System environment variable), then restart VS Code and any terminals.
 
 1) Verify:
 
@@ -86,18 +86,18 @@ winget install --id Apache.Maven -e
 .\mvnw.cmd -v
 ```
 
-This should report Java 21.
+This should report Java 25.
 
-Note: `java -version` may still show an older Java if your system `PATH` points to it. For this sample, the important thing is that `JAVA_HOME` points to JDK 21 so Maven/VS Code build and run using Java 21.
+Note: `java -version` may still show an older Java if your system `PATH` points to it. Check the Java version reported by the wrapper.
 
 #### Option B: With Chocolatey (`choco`)
 
 1) Open PowerShell **as Administrator** (recommended for Chocolatey installs).
 
-1) Install JDK 21 (LTS) and Maven:
+1) Install JDK 25 (LTS):
 
 ```powershell
-choco install Temurin21 maven -y
+choco install Temurin25 -y
 ```
 
 1) Restart VS Code and any terminals.
@@ -108,46 +108,41 @@ choco install Temurin21 maven -y
 .\mvnw.cmd -v
 ```
 
-This should report Java 21.
+This should report Java 25.
 
 #### Option C: MacOS/Linux manual setup
 
-1) Install a JDK 21 (LTS)
+1) Install a JDK 25 (LTS)
 
-Choose a distribution and download the JDK 21 build for your operating system/architecture:
+Choose a distribution and download the JDK 25 build for your operating system/architecture:
 
-- [Microsoft Build of OpenJDK 21](https://learn.microsoft.com/java/openjdk/download)
-- [Eclipse Temurin 21 (Adoptium)](https://adoptium.net/temurin/releases/?version=21)
+- [Microsoft Build of OpenJDK 25](https://learn.microsoft.com/java/openjdk/download)
+- [Eclipse Temurin 25 (Adoptium)](https://adoptium.net/temurin/releases/?version=25)
 
 1) Set `JAVA_HOME`
 
 - Set `JAVA_HOME` to the JDK install directory (not a JRE).
 - Restart VS Code and any terminals after changing environment variables.
 
-1) Install Maven
-
-- Download Apache Maven from https://maven.apache.org/download.cgi
-- Install or extract it using the instructions for your OS.
-
-You can verify the active Java:
+1) Verify the active Java with the included Maven Wrapper:
 
 ```bash
 java -version
 ./mvnw -v
 ```
 
-`./mvnw -v` should report Java 21.
+`./mvnw -v` should report Java 25.
 
 ### VS Code setup (recommended)
 
 If you want to run/debug this sample from VS Code:
 
 1. Install the Java extension pack: `vscjava.vscode-java-pack`
-2. Ensure VS Code is using a JDK 21 runtime:
-    - Command Palette → **Java: Configure Java Runtime** → set a **JavaSE-21** runtime as default, OR
-    - Set `JAVA_HOME` to a JDK 21 path and restart VS Code.
+2. Ensure VS Code is using a JDK 25 runtime:
+    - Command Palette → **Java: Configure Java Runtime** → set a **JavaSE-25** runtime as default, OR
+    - Set `JAVA_HOME` to a JDK 25 path and restart VS Code.
 
-If Maven fails with `invalid target release: 21`, it usually means Maven is running under an older Java (for example Java 8). Make sure `JAVA_HOME` points to JDK 21 and that your terminal/VS Code session was restarted after setting it.
+If Maven reports that release 25 is not supported, check `JAVA_HOME` and restart your terminal and VS Code.
 
 ## Usage
 

@@ -4,15 +4,9 @@ This folder contains a Go sample that uses the **Azure Resource Manager (ARM) / 
 
 This is useful when your application uses **Microsoft Entra ID** and you want to manage Cosmos DB resources (accounts, databases, containers, throughput, and RBAC) via an SDK instead of Bicep/PowerShell/Azure CLI.
 
-## Important note about feature support
+## Container feature coverage
 
-The Go `armcosmos` management SDK does **not** currently expose some newer Azure Cosmos DB SQL container fields (for example, **computed properties** and **vector settings** like `vectorEmbeddingPolicy` / `vectorIndexes`).
-
-This sample intentionally uses only the fields currently supported by the Go management SDK.
-
-Note: This sample's account creation includes the `EnableNoSQLVectorSearch` capability (forward-looking), but the container-level vector configuration is not set by the Go sample because it isn't exposed in the Go management SDK yet.
-
-If you need computed properties or vector container configuration today, use one of the other language samples in this repository instead:
+The `armcosmos/v4` SDK exposes computed properties, vector embedding policies, and vector indexes. This sample enables `EnableNoSQLVectorSearch` on the account but does not configure those container fields. For examples that configure them, see:
 
 - [Csharp/](../Csharp/)
 - [Java/](../Java/)
@@ -43,11 +37,6 @@ Alternatively, you can create/configure the container using Azure Portal, PowerS
   - Last-writer-wins conflict resolution (`/_ts`).
   - Autoscale max throughput from configuration.
 
-Notes:
-- The Go `armcosmos` management SDK does not currently expose some newer container fields (for example, computed properties and vector settings like `vectorEmbeddingPolicy` / `vectorIndexes`).
-- This sample intentionally creates the container using only the fields currently supported by the Go management SDK.
-- If you need computed properties or vector container configuration today, use [Csharp/](../Csharp/), [Java/](../Java/), or [Python/](../Python/).
-
 ### Throughput
 
 - Updates **container dedicated throughput** by reading current settings first and then:
@@ -77,7 +66,7 @@ It also includes a **custom Cosmos DB SQL RBAC role definition** example (not us
 ## Prerequisites
 
 - An Azure subscription and a resource group.
-- Go 1.22+ (this sample is validated with Go 1.24.x).
+- Go 1.27.4 or later.
 - Azure identity available to `DefaultAzureCredential`.
 - Sign in with the Azure CLI before running the sample: `az login`
   - Other supported options include VS Code sign-in, Managed Identity, etc.
@@ -160,4 +149,4 @@ This keeps each sample's debug configuration independent, so developers don't ne
 ## Azure SDK for Go for Azure Cosmos DB
 
 You can find the source code for the Azure Management SDK for Go for Azure Cosmos DB and additional samples at:
-https://pkg.go.dev/github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos
+https://pkg.go.dev/github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos/v4

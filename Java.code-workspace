@@ -5,13 +5,13 @@
     }
   ],
   "settings": {
-    // This sample targets Java 21 (LTS). Configure a JDK 21 in VS Code (Java: Configure Java Runtime)
-    // or set JAVA_HOME to a JDK 21 path and restart VS Code.
+    // This sample targets Java 25 (LTS). Configure a JDK 25 in VS Code (Java: Configure Java Runtime)
+    // or set JAVA_HOME to a JDK 25 path and restart VS Code.
     //
     // Simplest setup for non-Java folks: set JAVA_HOME once, and let VS Code use it.
     "java.configuration.runtimes": [
       {
-        "name": "JavaSE-21",
+        "name": "JavaSE-25",
         "path": "${env:JAVA_HOME}",
         "default": true
       }

@@ -58,7 +58,7 @@ It also includes a **custom Cosmos DB SQL RBAC role definition** example (not us
 ## Prerequisites
 
 - An Azure subscription and a resource group.
-- Python 3.10+.
+- Python 3.14 or later.
 - Azure identity available to `DefaultAzureCredential` (for example: `az login`, VS Code sign-in, Managed Identity, etc.).
 - Permissions:
 	- To create/update Cosmos resources: typically **Contributor** on the resource group.
