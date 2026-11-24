@@ -384,11 +384,6 @@ func createOrUpdateCosmosDBContainer(ctx context.Context) {
 		log.Fatalf("failed to get cosmos db database: %v", err)
 	}
 
-	// NOTE: The Go `armcosmos` management SDK does not currently expose some newer SQL container fields
-	// (computed properties and vector settings like vectorEmbeddingPolicy / indexingPolicy.vectorIndexes).
-	// This sample creates the container using only fields currently supported by the SDK.
-	// When these features become supported in the Go management SDK, we will add them here.
-
 	partitionKind := armcosmos.PartitionKindMultiHash
 	indexingMode := armcosmos.IndexingModeConsistent
 	conflictResolutionModeLastWriterWins := armcosmos.ConflictResolutionModeLastWriterWins
