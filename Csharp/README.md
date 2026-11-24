@@ -56,7 +56,7 @@ It also includes a **custom Cosmos DB SQL RBAC role definition** example (not us
 ## Prerequisites
 
 - An Azure subscription and a resource group.
-- .NET SDK 9 installed.
+- .NET 10 SDK (LTS).
 - Azure identity available to `DefaultAzureCredential` (e.g., `az login`, VS Code sign-in, Managed Identity, etc.).
 - Permissions:
   - To create/update Cosmos resources: typically **Contributor** on the resource group.
@@ -124,7 +124,7 @@ dotnet run
 
 To debug without requiring all language extensions in this multi-language repo, open the workspace file [Csharp.code-workspace](../Csharp.code-workspace) and use the launch configuration **“C#: Debug sample”**.
 - Sets `DOTNET_ENVIRONMENT=Development`
-- Launches `Csharp/bin/Debug/net9.0/Csharp.dll`
+- The launch configuration's `program` should point to `${workspaceFolder}/bin/Debug/net10.0/CosmosManagement.dll`.
 
 Use the **Run and Debug** panel to start it.
 

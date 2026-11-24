@@ -1,6 +1,6 @@
 module github.com/AzureCosmosDB/management-sdk-samples/Go
 
-go 1.24.2
+go 1.27.4
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.21.0

@@ -1,6 +1,6 @@
 package to
 
-import "github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos"
+import "github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos/v4"
 
 func PublicNetworkAccessPtr(p armcosmos.PublicNetworkAccess) *armcosmos.PublicNetworkAccess {
 	return &p

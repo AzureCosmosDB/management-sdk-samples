@@ -56,7 +56,7 @@ It also includes a **custom Cosmos DB SQL RBAC role definition** example (not us
 ## Prerequisites
 
 - An Azure subscription and a resource group.
-- Node.js 18.18+.
+- Node.js 26 LTS (26.13.0 or later in the 26.x line).
 - Azure identity available to `DefaultAzureCredential` (for example: `az login`, VS Code sign-in, Managed Identity, etc.).
 - Permissions:
   - To create/update Cosmos resources: typically **Contributor** on the resource group.
@@ -72,7 +72,7 @@ Notes:
 If you want to run/debug this sample from VS Code:
 
 1. Open [JavaScript.code-workspace](../JavaScript.code-workspace)
-2. Ensure you have Node.js installed (18.18+)
+2. Ensure the Node.js LTS version listed above is on your `PATH`.
 
 ## Usage
 
@@ -102,7 +102,7 @@ This sample expects you to run from the `JavaScript/` folder.
 
 ```sh
 cd JavaScript
-npm install
+npm ci
 cp config.env.sample config.env
 ```
 
@@ -110,7 +110,7 @@ cp config.env.sample config.env
 
 ```powershell
 cd .\JavaScript
-npm install
+npm ci
 copy config.env.sample config.env
 ```
 

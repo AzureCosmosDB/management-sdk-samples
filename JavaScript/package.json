@@ -6,7 +6,7 @@
   "description": "Azure Cosmos DB management-plane sample using the Azure SDK for JavaScript.",
   "license": "MIT",
   "engines": {
-    "node": ">=18.18.0"
+    "node": "^26.13.0"
   },
   "scripts": {
     "start": "node src/index.js",
@@ -14,9 +14,9 @@
   },
   "dependencies": {
     "@azure/arm-authorization": "^9.0.0",
-    "@azure/arm-cosmosdb": "^16.1.0",
-    "@azure/identity": "^4.5.0",
-    "dotenv": "^16.4.7",
-    "uuid": "^9.0.1"
+    "@azure/arm-cosmosdb": "^17.1.0",
+    "@azure/identity": "^4.14.1",
+    "dotenv": "^18.0.10",
+    "uuid": "^14.0.3"
   }
 }
