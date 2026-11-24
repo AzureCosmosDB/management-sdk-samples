@@ -116,6 +116,8 @@ copy config.env.sample config.env
 
 ## Running
 
+Run `npm test` to check the management requests locally using a mocked credential and HTTP transport. The tests do not require Azure configuration or make network requests.
+
 From the `JavaScript/` folder:
 
 ```sh

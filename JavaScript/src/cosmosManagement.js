@@ -138,7 +138,8 @@ export async function createOrUpdateAzureRbacCosmosDbOperatorAssignment(clients,
   // Deterministic GUID so repeated runs are idempotent.
   const roleAssignmentName = getStableGuid(`${scope}|${roleDefinitionId}|${principalId}`);
 
-  const assignment = await clients.authorizationClient.roleAssignments.create(scope, roleAssignmentName, {
+  // The authorization SDK inserts its own "/" before the scope in the request URL.
+  const assignment = await clients.authorizationClient.roleAssignments.create(scope.slice(1), roleAssignmentName, {
     roleDefinitionId,
     principalId,
     description: "Role assignment for Cosmos DB (management plane)",
