@@ -1,6 +1,5 @@
-python-dotenv
-azure-identity
-azure-mgmt-cosmosdb
-azure-mgmt-authorization
-azure-mgmt-resource
-aiohttp>=3.9.0
+python-dotenv==1.2.4
+azure-identity==1.27.0
+azure-mgmt-cosmosdb==10.0.0
+azure-mgmt-authorization==4.0.0
+aiohttp==3.14.5
