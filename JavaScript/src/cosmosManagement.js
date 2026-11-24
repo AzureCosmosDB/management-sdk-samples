@@ -175,9 +175,9 @@ export async function createOrUpdateCosmosNoSqlRbacDataContributorAssignment(cli
   // Cosmos DB SQL RBAC built-in role definition ID.
   const roleDefinitionGuid = "00000000-0000-0000-0000-000000000002";
   const roleDefinition = await clients.cosmosClient.sqlResources.getSqlRoleDefinition(
-    roleDefinitionGuid,
     config.resourceGroupName,
     config.accountName,
+    roleDefinitionGuid,
   );
   const roleDefinitionId = roleDefinition?.id;
   if (!roleDefinitionId) {
@@ -188,9 +188,9 @@ export async function createOrUpdateCosmosNoSqlRbacDataContributorAssignment(cli
   const roleAssignmentId = getStableGuid(`${assignableScope}|${roleDefinitionId}|${principalId}`);
 
   const assignment = await clients.cosmosClient.sqlResources.beginCreateUpdateSqlRoleAssignmentAndWait(
-    roleAssignmentId,
     config.resourceGroupName,
     config.accountName,
+    roleAssignmentId,
     {
       roleDefinitionId,
       principalId,
@@ -230,9 +230,9 @@ export async function createOrUpdateCustomCosmosNoSqlRbacRoleDefinitionExceptDel
   const roleDefinitionId = "11111111-1111-1111-1111-111111111111";
 
   const roleDefinition = await clients.cosmosClient.sqlResources.beginCreateUpdateSqlRoleDefinitionAndWait(
-    roleDefinitionId,
     config.resourceGroupName,
     config.accountName,
+    roleDefinitionId,
     {
       roleName,
       type: "CustomRole",
